@@ -424,7 +424,7 @@ jobs:
           include_job_number_field: false
 
       # 初期テストの通知(NGあり)
-      - slack/notify:
+      - slack/status:
           fail_only: true
           channel: ${SLACK_CHANNEL}
           color: '#42e2f4'
