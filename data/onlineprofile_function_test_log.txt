@@ -1,0 +1,14 @@
+
+
+  SeleniumChromeTest
+    ✓ login salesforce (4933ms)
+    ✓ LEX app tab case (27041ms)
+    ✓ CLASSIC app tab case (32109ms)
+    ✓ startpage case (64625ms)
+    ✓ create myprofile case (35024ms)
+    ✓ create url case (90453ms)
+    ✓ profile case (36544ms)
+    ✓ profile edit case (17750ms)
+
+
+  8 passing (5m)
