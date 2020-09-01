@@ -422,7 +422,6 @@ jobs:
               echo 'export PASS_NUM=$PASS' >> $BASH_ENV
               echo 'export FAIL_NUM=$FAIL' >> $BASH_ENV
               echo 'export TOTAL_NUM=$TOTAL' >> $BASH_ENV
-              source $BASH_ENV
               echo ${PASS_NUM}
               echo ${FAIL_NUM}
               echo ${TOTAL_NUM}
