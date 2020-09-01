@@ -369,7 +369,7 @@ jobs:
           name: run onlineprofile function test
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              echo $(npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0) | tee > data/onlineprofile_function_test_log.txt
+              npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0 | tee data/onlineprofile_function_test_log.txt
             else
               exit 0
             fi
@@ -378,7 +378,7 @@ jobs:
           name: run onlineprofile permission test1
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              echo $(npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0) | tee > data/onlineprofile_permission_test_log1.txt
+              npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0 | tee data/onlineprofile_permission_test_log1.txt
             else
               exit 0
             fi
@@ -387,7 +387,7 @@ jobs:
           name: run onlineprofile permission test2
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              echo $(npx mocha scripts/e2e/onlineprofile_permission_test2.js --timeout 0) | tee > data/onlineprofile_permission_test_log2.txt
+              npx mocha scripts/e2e/onlineprofile_permission_test2.js --timeout 0 | tee  data/onlineprofile_permission_test_log2.txt
             else
               exit 0
             fi
