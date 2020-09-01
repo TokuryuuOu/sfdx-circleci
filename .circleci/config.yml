@@ -170,7 +170,7 @@ jobs:
       #     name: create PKG org server key
       #     command: |
       #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-      #         openssl enc -nosalt -aes-256-cbc -d -in assets/server_pkg.key.enc -out assets/server_pkg.key -base64 -K ${PKGORG_DECRYPTION_KEY} -iv ${PKGORG_DECRYPTION_IV}
+      #         openssl enc -nosalt -aes-256-cbc -d -in assets/server_pkg.key.enc -out assets/server_pkg.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
       #       else
       #         exit 0
       #       fi
@@ -419,10 +419,13 @@ jobs:
               FAIL=$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))
               # 総ケース数
               TOTAL=$(($PASS+$FAIL))
-              echo 'export PASS_NUM=$(echo "$PASS")' >> $BASH_ENV
-              echo 'export FAIL_NUM=$(echo "$FAIL")' >> $BASH_ENV
-              echo 'export TOTAL_NUM=$(echo "$TOTAL")' >> $BASH_ENV
+              echo 'export PASS_NUM=${PASS}' >> $BASH_ENV
+              echo 'export FAIL_NUM=${$FAIL}' >> $BASH_ENV
+              echo 'export TOTAL_NUM=${TOTAL}' >> $BASH_ENV
               source $BASH_ENV
+              echo ${PASS_NUM}
+              echo ${FAIL_NUM}
+              echo ${TOTAL_NUM}
             else
               exit 0
             fi
@@ -435,20 +438,20 @@ jobs:
       #     webhook: '${SLACK_WEBHOOK}'
       #     include_job_number_field: false
 
-      # 初期テストの通知(NGなし)
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 初期テストの通知(NGなし)
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知(NGあり)
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-          webhook: '${SLACK_WEBHOOK}'
+      # # 初期テストの通知(NGあり)
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+      #     webhook: '${SLACK_WEBHOOK}'
 
       # # CI失敗の通知
       # - slack/status:
