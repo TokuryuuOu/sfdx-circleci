@@ -349,21 +349,21 @@ jobs:
       #         exit 0
       #       fi
 
-      - run:
-          name: create info files and run e2e script
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # e2e側で、MyProfile詳細画面URLが必要ため、URL作成用IDを取得
-              # sfdx force:data:soql:query -q "SELECT Id FROM olPfSohoTest__MyProfile__c" -u qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/mp.json
-              # cat data/mp.json
-              # e2e用環境ログイン情報を取得
-              # sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/qa_scratch_info.json
-              # cat data/qa_scratch_info.json
-              # e2e実行
-              # npx mocha scripts/e2e/qa_community.js --timeout 0
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: create info files and run e2e script
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # e2e側で、MyProfile詳細画面URLが必要ため、URL作成用IDを取得
+      #         sfdx force:data:soql:query -q "SELECT Id FROM olPfSohoTest__MyProfile__c" -u qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/mp.json
+      #         cat data/mp.json
+      #         # e2e用環境ログイン情報を取得
+      #         sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/qa_scratch_info.json
+      #         cat data/qa_scratch_info.json
+      #         # e2e実行
+      #         npx mocha scripts/e2e/qa_community.js --timeout 0
+      #       else
+      #         exit 0
+      #       fi
       
       - run:
           name: run onlineprofile function test
@@ -400,7 +400,7 @@ jobs:
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
               # OKケース数
-              $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+              echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
               + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
               + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
               # NGケース数
