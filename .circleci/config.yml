@@ -396,8 +396,28 @@ jobs:
           name: edit test result
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
-              FAIL=$(($(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}') + $(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') + $(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+              # OKケース数
+              PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+                   + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
+                   + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+              # NGケース数
+              if [ -n $(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}') ]; then
+                OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
+              else
+                OFT_FAIL=0
+              fi
+              if [ -n $(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') ]; then
+                OPT1_FAIL=$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')
+              else
+                OPT1_FAIL=0
+              fi
+              if [ -n $(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}') ]; then
+                OPT2_FAIL=$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')
+              else
+                OPT2_FAIL=0
+              fi
+              FAIL=$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))
+              # 総ケース数
               TOTAL=$(($PASS+$FAIL))
               echo 'export PASS_NUM=$(echo $PASS)' >> $BASH_ENV
               echo 'export FAIL_NUM=$(echo $FAIL)' >> $BASH_ENV
