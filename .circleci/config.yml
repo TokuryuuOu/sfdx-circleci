@@ -373,6 +373,7 @@ jobs:
             else
               exit 0
             fi
+          when: always
 
       - run:
           name: run onlineprofile permission test1
@@ -382,6 +383,7 @@ jobs:
             else
               exit 0
             fi
+          when: always
 
       - run:
           name: run onlineprofile permission test2
@@ -391,6 +393,7 @@ jobs:
             else
               exit 0
             fi
+          when: always
 
       - run:
           name: edit test result
@@ -426,6 +429,7 @@ jobs:
             else
               exit 0
             fi
+          when: always
 
       # 環境情報の通知
       - slack/notify:
