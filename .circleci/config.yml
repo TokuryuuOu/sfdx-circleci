@@ -156,6 +156,7 @@ jobs:
       - checkout
       - sfdx/install:
           version: "7.69.0"
+      - run: npm install
       - run:
           name: create date files
           command: |
@@ -359,7 +360,6 @@ jobs:
               # sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/qa_scratch_info.json
               # cat data/qa_scratch_info.json
               # e2e実行
-              npm install
               # npx mocha scripts/e2e/qa_community.js --timeout 0
             else
               exit 0
@@ -426,6 +426,9 @@ jobs:
               echo 'export FAIL_NUM=$FAIL' >> $BASH_ENV
               echo 'export TOTAL_NUM=$TOTAL' >> $BASH_ENV
               source $BASH_ENV
+              echo ${PASS_NUM}
+              echo ${FAIL_NUM}
+              echo ${TOTAL_NUM}
             else
               exit 0
             fi
