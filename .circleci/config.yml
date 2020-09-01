@@ -154,8 +154,8 @@ jobs:
       - image: circleci/node:current-browsers
     steps:
       - checkout
-      # - sfdx/install:
-      #     version: "7.69.0"
+      - sfdx/install:
+          version: "7.69.0"
       - run:
           name: create date files
           command: |
@@ -397,9 +397,9 @@ jobs:
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
               # OKケース数
-              PASS="$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+              PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
                    + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
-                   + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))"
+                   + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
               # NGケース数
               if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
                 OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
@@ -416,12 +416,9 @@ jobs:
               else
                 OPT2_FAIL=$(echo 0)
               fi
-              FAIL="$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))"
+              FAIL=$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))
               # 総ケース数
-              TOTAL="$(($PASS+$FAIL))"
-              echo ${TOTAL}
-              echo ${PASS}
-              echo ${FAIL}
+              TOTAL=$(($PASS+$FAIL))
               echo 'export PASS_NUM=${PASS}' >> $BASH_ENV
               echo 'export FAIL_NUM=${FAIL}' >> $BASH_ENV
               echo 'export TOTAL_NUM=${TOTAL}' >> $BASH_ENV
@@ -429,13 +426,6 @@ jobs:
             else
               exit 0
             fi
-      
-      - run:
-          name: echo 
-          command: |
-            echo ${TOTAL_NUM}
-            echo ${PASS_NUM}
-            echo ${FAIL_NUM}
 
       # # 環境情報の通知
       # - slack/notify:
@@ -445,20 +435,20 @@ jobs:
       #     webhook: '${SLACK_WEBHOOK}'
       #     include_job_number_field: false
 
-      # # 初期テストの通知(NGなし)
-      # - slack/notify:
-      #     channel: ${SLACK_CHANNEL}
-      #     color: '#42e2f4'
-      #     message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-      #     webhook: '${SLACK_WEBHOOK}'
-      #     include_job_number_field: false
+      # 初期テストの通知(NGなし)
+      - slack/notify:
+          channel: ${SLACK_CHANNEL}
+          color: '#42e2f4'
+          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+          webhook: '${SLACK_WEBHOOK}'
+          include_job_number_field: false
 
-      # # 初期テストの通知(NGあり)
-      # - slack/status:
-      #     fail_only: true
-      #     channel: ${SLACK_CHANNEL}
-      #     failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-      #     webhook: '${SLACK_WEBHOOK}'
+      # 初期テストの通知(NGあり)
+      - slack/status:
+          fail_only: true
+          channel: ${SLACK_CHANNEL}
+          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+          webhook: '${SLACK_WEBHOOK}'
 
       # # CI失敗の通知
       # - slack/status:
