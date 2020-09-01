@@ -426,36 +426,43 @@ jobs:
             else
               exit 0
             fi
+      
+      - run:
+          name: echo 
+          command: |
+            echo ${TOTAL_NUM}
+            echo ${PASS_NUM}
+            echo ${FAIL_NUM}
 
-      # 環境情報の通知
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 環境情報の通知
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知(NGなし)
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 初期テストの通知(NGなし)
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知(NGあり)
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-          webhook: '${SLACK_WEBHOOK}'
+      # # 初期テストの通知(NGあり)
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+      #     webhook: '${SLACK_WEBHOOK}'
 
-      # CI失敗の通知
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          webhook: '${SLACK_WEBHOOK}'
-          failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
+      # # CI失敗の通知
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
       
 ####################################################################################################
 ## workflows
