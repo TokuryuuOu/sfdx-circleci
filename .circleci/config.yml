@@ -427,10 +427,8 @@ jobs:
       - slack/status:
           fail_only: true
           channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
           failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
           webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
 
       # CI失敗の通知
       - slack/status:
