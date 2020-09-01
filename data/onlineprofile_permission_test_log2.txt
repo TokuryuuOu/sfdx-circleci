@@ -1,8 +1,0 @@
-
-
-  SeleniumChromeTest
-    ✓ login salesforce (5183ms)
-    ✓ permissionset OutboundProfile case (526253ms)
-
-
-  2 passing (9m)

@@ -1,8 +1,0 @@
-
-
-  SeleniumChromeTest
-    ✓ login salesforce (4262ms)
-    ✓ permissionset myprofile case (478083ms)
-
-
-  2 passing (8m)

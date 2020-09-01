@@ -1,0 +1,14 @@
+{
+    "status": 0,
+    "result": {
+      "username": "1598927121003_test-uvhietsez646@example.com",
+      "profileName": "システム管理者",
+      "id": "0055D000003feE4QAI",
+      "orgId": "00D5D0000009iVDUAY",
+      "accessToken": "00D5D0000009iVD!AQ8AQOqo5vTs7JF50wjvA_zui5SjHvNlWjvDyCJypJ6gIGVDnH7Njgy_TIUf53oYr37mQ5.NDzDI6R80ejZge0SVc_FTJ1ZQ",
+      "instanceUrl": "https://velocity-agility-2187-dev-ed.cs72.my.salesforce.com",
+      "loginUrl": "https://CS72.salesforce.com",
+      "alias": "qa-8168821c-beb3-41ee-b12a-d66d4684fcc7@package.org",
+      "password": "|x4(iBW86k"
+    }
+}
