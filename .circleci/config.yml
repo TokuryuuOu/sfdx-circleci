@@ -419,6 +419,9 @@ jobs:
               FAIL=$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))
               # 総ケース数
               TOTAL=$(($PASS+$FAIL))
+              echo ${TOTAL}
+              echo ${PASS}
+              echo ${FAIL}
               echo 'export PASS_NUM=${PASS}' >> $BASH_ENV
               echo 'export FAIL_NUM=${FAIL}' >> $BASH_ENV
               echo 'export TOTAL_NUM=${TOTAL}' >> $BASH_ENV
