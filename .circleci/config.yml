@@ -397,9 +397,9 @@ jobs:
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
               # OKケース数
-              PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+              PASS="$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
                    + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
-                   + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+                   + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))"
               # NGケース数
               if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
                 OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
@@ -416,15 +416,15 @@ jobs:
               else
                 OPT2_FAIL=$(echo 0)
               fi
-              FAIL=$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))
+              FAIL="$(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL))"
               # 総ケース数
-              TOTAL=$(($PASS+$FAIL))
+              TOTAL="$(($PASS+$FAIL))"
               echo ${TOTAL}
               echo ${PASS}
               echo ${FAIL}
-              echo 'export PASS_NUM="${PASS}"' >> $BASH_ENV
-              echo 'export FAIL_NUM="${FAIL}"' >> $BASH_ENV
-              echo 'export TOTAL_NUM="${TOTAL}"' >> $BASH_ENV
+              echo 'export PASS_NUM=${PASS}' >> $BASH_ENV
+              echo 'export FAIL_NUM=${FAIL}' >> $BASH_ENV
+              echo 'export TOTAL_NUM=${TOTAL}' >> $BASH_ENV
               source $BASH_ENV
             else
               exit 0
