@@ -365,23 +365,23 @@ jobs:
               exit 0
             fi
       
-      - run:
-          name: run onlineprofile function test
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0 | tee data/onlineprofile_function_test_log.txt
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: run onlineprofile function test
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0 | tee data/onlineprofile_function_test_log.txt
+      #       else
+      #         exit 0
+      #       fi
 
-      - run:
-          name: run onlineprofile permission test1
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0 | tee data/onlineprofile_permission_test_log1.txt
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: run onlineprofile permission test1
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0 | tee data/onlineprofile_permission_test_log1.txt
+      #       else
+      #         exit 0
+      #       fi
 
       - run:
           name: run onlineprofile permission test2
@@ -392,20 +392,20 @@ jobs:
               exit 0
             fi
 
-      - run:
-          name: edit test result
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}')+$(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')+$(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
-              FAIL=$(($(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')+$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')+$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
-              TOTAL=$(($PASS+$FAIL))
-              echo 'export PASS_NUM=$(echo $PASS)' >> $BASH_ENV
-              echo 'export FAIL_NUM=$(echo $FAIL)' >> $BASH_ENV
-              echo 'export TOTAL_NUM=$(echo $TOTAL)' >> $BASH_ENV
-              source $BASH_ENV
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: edit test result
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}')+$(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')+$(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+      #         FAIL=$(($(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')+$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')+$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+      #         TOTAL=$(($PASS+$FAIL))
+      #         echo 'export PASS_NUM=$(echo $PASS)' >> $BASH_ENV
+      #         echo 'export FAIL_NUM=$(echo $FAIL)' >> $BASH_ENV
+      #         echo 'export TOTAL_NUM=$(echo $TOTAL)' >> $BASH_ENV
+      #         source $BASH_ENV
+      #       else
+      #         exit 0
+      #       fi
 
       # # 環境情報の通知
       # - slack/notify:
@@ -416,12 +416,12 @@ jobs:
       #     include_job_number_field: false
 
       # 初期テストの通知
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
       # # CI失敗の通知
       # - slack/status:
