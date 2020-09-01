@@ -1,0 +1,4 @@
+<!-- OnlineProfile URL生成(グローバルアクション用) -->
+<apex:page showHeader="false" sidebar="false" showQuickActionVfHeader="false" lightningStylesheets="true" docType="html-5.0">
+    <c:UrlGenerator isGlobalAction="true"/>
+</apex:page>

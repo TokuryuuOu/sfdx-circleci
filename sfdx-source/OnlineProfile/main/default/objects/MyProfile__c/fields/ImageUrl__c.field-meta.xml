@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ImageUrl__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISBLANK(ImageUrlParameter__c),
+    null,
+    LEFT($Api.Partner_Server_URL_480, FIND(&quot;/services/Soap/&quot;, $Api.Partner_Server_URL_480))
+        + &quot;/sfc/dist/version/renditionDownload?rendition=ORIGINAL_&quot; + FileType__c
+        + &quot;&amp;versionId=&quot; + LEFT(ContentVersionId__c, 15)
+        + &quot;&amp;d=/a/&quot; + ImageUrlParameter__c + &quot;&amp;oid=&quot; + LEFT($Organization.Id, 15)
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>画像URL</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

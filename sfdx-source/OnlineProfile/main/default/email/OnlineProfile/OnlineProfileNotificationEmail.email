@@ -1,0 +1,6 @@
+「Online Profile for Salesforce」から新着の受信プロフィールをお知らせいたします。
+
+{!InboundProfile__c.CompanyName__c} {!InboundProfile__c.LastName__c}  {!InboundProfile__c.FirstName__c}様
+{!InboundProfile__c.Link}
+
+ご確認をお願い致します。

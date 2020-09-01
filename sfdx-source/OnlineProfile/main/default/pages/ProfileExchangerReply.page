@@ -1,0 +1,166 @@
+<!-- OnlineProfile プロフィール交換 -->
+<apex:page controller="ProfileExchangerController" action="{!init}" showHeader="false" sidebar="false" standardStylesheets="false"
+  applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" cache="false">
+  <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="ja">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--IE対策：互換表示させない。-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Online Profile - オンラインプロフィール</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet"
+    />
+    <apex:stylesheet value="{!URLFOR($Resource.OnlineProfile, '/css/style.css')}" />
+  </head>
+
+  <body>
+    <apex:outputPanel layout="none" id="page">
+      <!-- メッセージ表示 -->
+      <apex:outputPanel layout="none" rendered="{!hasError == false}">
+        <!-- プロフィール入力 -->
+        <apex:outputPanel layout="block" styleClass="inner">
+          <a href="javascript:viewPage()" class="back uk-position-top uk-position-left" uk-icon="icon: chevron-left"></a>
+          <apex:form >
+            <h1>
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+            </h1>
+            <h2>
+              あなたのプロフィールを教えてください
+            </h2>
+
+            <div class="inner">
+              <div class="inner-form">
+                <div class="form-inner uk-grid-small uk-grid">
+                  <legend class="uk-legend uk-grid-margin uk-first-column">氏名
+                    <span>*必須</span>
+                  </legend>
+                  <div class="uk-width-1-2@s uk-grid-margin uk-first-column">
+                    <apex:inputField id="lastName" value="{!inProfile.LastName__c}" type="text" styleClass="uk-input error" html-placeholder="姓"
+                    />
+                  </div>
+                  <div class="uk-width-1-2@s uk-grid-margin uk-first-column">
+                    <apex:inputField id="firstname" value="{!inProfile.FirstName__c}" type="text" styleClass="uk-input" html-placeholder="名"
+                    />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-column">メールアドレス
+                    <span>*必須</span>
+                  </legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-column">
+                    <apex:inputField id="email" value="{!inProfile.Email__c}" type="email" styleClass="uk-input" html-placeholder="sample@example.com"
+                    />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">会社名</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.CompanyName__c}" type="text" styleClass="uk-input" html-placeholder="株式会社オンラインプロフィール" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-column">部署</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-column">
+                    <apex:inputField value="{!inProfile.Department__c}" type="text" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-column">役職</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-column">
+                    <apex:inputField value="{!inProfile.Title__c}" type="text" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">携帯電話</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.MobilePhone__c}" type="tel" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">直通番号/内線番号など 1</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.Tel1__c}" type="tel" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">直通番号/内線番号など 2</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.Tel2__c}" type="tel" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">代表電話番号</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.Tel__c}" type="tel" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">Web サイト</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.Website__c}" type="url" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">郵便番号</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.PostalCode__c}" type="text" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">都道府県</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.State__c}" type="text" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">市区郡</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.City__c}" type="text" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">町名・番地</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputField value="{!inProfile.Street__c}" type="text" styleClass="uk-input" html-placeholder="" />
+                  </div>
+                  <legend class="uk-legend uk-grid-margin uk-first-colum">メッセージ</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-colum">
+                    <apex:inputTextarea value="{!inProfile.Message__c}" styleClass="uk-input" style="height:100px;" />
+                  </div>
+
+                  <!-- プロフィール送信 -->
+                  <apex:actionFunction name="saveInboundProfile" action="{!saveInboundProfile}" />
+                </div>
+                <!-- ボタン -->
+                <div class="footer-buttons uk-position-bottom uk-position-fixed uk-button-group uk-flex uk-child-width-expand uk-box-shadow-small">
+                  <div class="uk-box-shadow-hover-small">
+                    <button type="button" class="uk-button uk-button-default uk-width-1-1" onclick="viewPage()">
+                      <span uk-icon="icon: arrow-left"></span>プロフィール一覧に戻る
+                    </button>
+                  </div>
+                  <div class="uk-box-shadow-hover-small footer-buttons__next">
+                    <button type="button" class="uk-button uk-button-default uk-width-1-1" onclick="saveInboundProfile()">
+                      プロフィールを送信
+                      <span uk-icon="icon: arrow-right"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </apex:form>
+          <apex:form >
+            <!-- プロフィール一覧ページへ -->
+            <apex:actionFunction name="viewPage" action="{!viewPage}" />
+          </apex:form>
+        </apex:outputPanel>
+        <script>$('body').attr('id', 'form-page')</script>
+      </apex:outputPanel>
+      <!-- エラーメッセージ表示 -->
+      <apex:outputPanel layout="none" rendered="{!hasError}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <h1>
+            <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+          </h1>
+          <h2>
+            <apex:messages />
+          </h2>
+        </apex:outputPanel>
+        <footer class="index-footer">
+          <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/footer-logo.svg')}" styleClass="uk-align-center" alt="" />
+          <div class="uk-text-center">
+            <a target="_blank" href="https://www.sunbridge.com/">
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/sb-logo.png')}" alt="" />
+            </a>
+          </div>
+        </footer>
+        <script>$('body').attr('id', 'error-page')</script>
+      </apex:outputPanel>
+    </apex:outputPanel>
+
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.validate.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit-icons.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/profile_exchanger.min.js')}" />
+  </body>
+
+  </html>
+</apex:page>

@@ -1,0 +1,76 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "olPfSohoTest__MyProfile__c",
+                "referenceId": "MyProfile__cRef1"
+            },
+            "Name": "テストNo.1",
+            "olPfSohoTest__City__c": "市区郡No,1",
+            "olPfSohoTest__CompanyName__c": "会社No,1",
+            "olPfSohoTest__Department__c": "部署No,1",
+            "olPfSohoTest__Email__c": "mail01@mai.l.com",
+            "olPfSohoTest__FirstName__c": "名No.1",
+            "olPfSohoTest__IsDefault__c": false,
+            "olPfSohoTest__LastName__c": "姓No.1",
+            "olPfSohoTest__Message__c": "メッセージ１\nメッセージ１",
+            "olPfSohoTest__MobilePhone__c": "090-0001-1111",
+            "olPfSohoTest__PostalCode__c": "111-0001",
+            "olPfSohoTest__State__c": "都道府県No,1",
+            "olPfSohoTest__Street__c": "町名・番地No,1",
+            "olPfSohoTest__Tel1__c": "03-001-0001",
+            "olPfSohoTest__Tel2__c": "03-002-0001",
+            "olPfSohoTest__Tel__c": "03-003-0001",
+            "olPfSohoTest__Title__c": "役職No,1",
+            "olPfSohoTest__Website__c": "www.test1.com"
+        },
+        {
+            "attributes": {
+                "type": "olPfSohoTest__MyProfile__c",
+                "referenceId": "MyProfile__cRef2"
+            },
+            "Name": "テストNo.2",
+            "olPfSohoTest__City__c": "市区郡No,2",
+            "olPfSohoTest__CompanyName__c": "会社No,2",
+            "olPfSohoTest__Department__c": "部署No,2",
+            "olPfSohoTest__Email__c": "mail02@mai.l.com",
+            "olPfSohoTest__FirstName__c": "名No.2",
+            "olPfSohoTest__IsDefault__c": false,
+            "olPfSohoTest__LastName__c": "姓No.2",
+            "olPfSohoTest__Message__c": "メッセージ１\nメッセージ２",
+            "olPfSohoTest__MobilePhone__c": "090-0001-1112",
+            "olPfSohoTest__PostalCode__c": "111-0002",
+            "olPfSohoTest__State__c": "都道府県No,2",
+            "olPfSohoTest__Street__c": "町名・番地No,2",
+            "olPfSohoTest__Tel1__c": "03-001-0002",
+            "olPfSohoTest__Tel2__c": "03-002-0002",
+            "olPfSohoTest__Tel__c": "03-003-0002",
+            "olPfSohoTest__Title__c": "役職No,2",
+            "olPfSohoTest__Website__c": "www.test2.com"
+        },
+        {
+            "attributes": {
+                "type": "olPfSohoTest__MyProfile__c",
+                "referenceId": "MyProfile__cRef3"
+            },
+            "Name": "テストNo.3",
+            "olPfSohoTest__City__c": "市区郡No,3",
+            "olPfSohoTest__CompanyName__c": "会社No,3",
+            "olPfSohoTest__Department__c": "部署No,3",
+            "olPfSohoTest__Email__c": "mail03@mai.l.com",
+            "olPfSohoTest__FirstName__c": "名No.3",
+            "olPfSohoTest__IsDefault__c": true,
+            "olPfSohoTest__LastName__c": "姓No.3",
+            "olPfSohoTest__Message__c": "メッセージ１\nメッセージ３",
+            "olPfSohoTest__MobilePhone__c": "090-0001-1113",
+            "olPfSohoTest__PostalCode__c": "111-0003",
+            "olPfSohoTest__State__c": "都道府県No,3",
+            "olPfSohoTest__Street__c": "町名・番地No,3",
+            "olPfSohoTest__Tel1__c": "03-001-0003",
+            "olPfSohoTest__Tel2__c": "03-002-0003",
+            "olPfSohoTest__Tel__c": "03-003-0003",
+            "olPfSohoTest__Title__c": "役職No,3",
+            "olPfSohoTest__Website__c": "www.test3.com"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultLandingTab>OnlineProfileHomePage</defaultLandingTab>
+    <description>Salesforceユーザーのための名刺不要の名刺交換ツール</description>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>OnlineProfile</label>
+    <logo>OnlineProfile/OnlineProfileIcon.png</logo>
+    <tabs>OnlineProfileHomePage</tabs>
+    <tabs>OutboundProfile__c</tabs>
+    <tabs>InboundProfile__c</tabs>
+</CustomApplication>

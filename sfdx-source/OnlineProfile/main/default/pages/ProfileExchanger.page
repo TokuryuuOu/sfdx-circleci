@@ -1,0 +1,279 @@
+<!-- OnlineProfile プロフィール交換 -->
+<apex:page controller="ProfileExchangerController" action="{!init}" showHeader="false" sidebar="false" standardStylesheets="false"
+  applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" cache="false">
+  <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="ja">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--IE対策：互換表示させない。-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Online Profile - オンラインプロフィール</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet"
+    />
+    <apex:stylesheet value="{!URLFOR($Resource.OnlineProfile, '/css/style.css')}" />
+  </head>
+
+  <body>
+    <apex:outputPanel layout="none" id="page">
+      <!-- パスワード入力 -->
+      <apex:outputPanel layout="none" rendered="{!hasError == false && hasPassword && okPassword == false}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <apex:form >
+            <h1>
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+            </h1>
+            <h2>
+              <apex:messages />
+            </h2>
+            <div class="inner">
+              <div class="inner-form">
+                <div class="form-inner uk-grid-small uk-grid">
+                  <legend class="uk-legend uk-grid-margin uk-first-column uk-text-center">プロフィールを閲覧するにはパスワードを入力してください</legend>
+                  <div class="uk-width-1-1 uk-grid-margin uk-first-column uk-text-center">
+                    <apex:inputSecret value="{!inputPassword}" styleClass="uk-input uk-form-width-medium uk-text-center" html-placeholder="" />
+                  </div>
+                  <apex:actionFunction name="sendPassword" action="{!sendPassword}" />
+                  <button type="button" class="uk-button uk-button-primary uk-width-1-2 uk-margin-small-bottom uk-grid-margin uk-margin-auto" onclick="sendPassword()">送信</button>
+                </div>
+              </div>
+            </div>
+          </apex:form>
+        </apex:outputPanel>
+        <script>$('body').attr('id', 'form-page')</script>
+      </apex:outputPanel>
+      <!-- プロフィール表示 -->
+      <apex:outputPanel layout="none" rendered="{!hasError == false && okPassword}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <apex:form >
+            <h1>
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+            </h1>
+            <h2 class="h2">
+              プロフィールをお送りします
+              <div>プロフィールを送り返していただくことも可能です</div>
+            </h2>
+            <!-- プロフィール一覧 -->
+            <apex:repeat value="{!outProfileMaps}" var="companyName">
+              <h3>{!companyName}</h3>
+              <div class="uk-child-width-1-2@s uk-grid-match" uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 100" uk-grid="masonry: true">
+                <apex:repeat value="{!outProfileMaps[companyName]}" var="profId">
+                  <div class="{!outProfileMaps[companyName][profId].css}">
+                    <div class="uk-card uk-card-hover uk-card-body uk-light">
+                      <div class="uk-card-header">
+                        <!-- 姓名, 画像, 部署, 役職 -->
+                        <div class="uk-card-title">
+                          <div class="uk-card-title">
+                            <apex:outputText value="{!outProfileMaps[companyName][profId].name}" />
+                            <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].imageUrl.isRender}">
+                              <div class="uk-float-right profile-card-image" style="background-image: url({!outProfileMaps[companyName][profId].imageUrl.value});"/>
+                            </apex:outputPanel>
+                          </div>
+                          <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].departmentAndTitle.isRender}">
+                            <div>
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].departmentAndTitle}" />
+                            </div>
+                          </apex:outputPanel>
+                        </div>
+                      </div>
+                      <div class="uk-card-body">
+                        <!-- メッセージ -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].message.isRender}">
+                          <blockquote>
+                            <p class="uk-margin-small-bottom">
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].message}" />
+                            </p>
+                          </blockquote>
+                        </apex:outputPanel>
+                        <!-- 携帯電話 -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].mobilePhone.isRender}">
+                          <div class="phone">
+                            <apex:outputLink value="tel:{!outProfileMaps[companyName][profId].mobilePhone}">
+                              <span uk-icon="icon:phone" class="uk-margin-small-right"></span>
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].mobilePhone}" />
+                            </apex:outputLink>
+                          </div>
+                        </apex:outputPanel>
+                        <!-- 電話番号1 -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].tel1.isRender}">
+                          <div class="tel1">
+                            <apex:outputLink value="tel:{!outProfileMaps[companyName][profId].tel1}">
+                              <span uk-icon="icon:receiver" class="uk-margin-small-right"></span>
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].tel1}" />
+                            </apex:outputLink>
+                          </div>
+                        </apex:outputPanel>
+                        <!-- 電話番号2 -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].tel2.isRender}">
+                          <div class="tel2">
+                            <apex:outputLink value="tel:{!outProfileMaps[companyName][profId].tel2}">
+                              <span uk-icon="icon:receiver" class="uk-margin-small-right"></span>
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].tel2}" />
+                            </apex:outputLink>
+                          </div>
+                        </apex:outputPanel>
+                        <!-- メール -->
+                        <div class="email">
+                          <apex:outputLink value="mailto:{!outProfileMaps[companyName][profId].email}">
+                            <span uk-icon="icon:mail" class="uk-margin-small-right"></span>
+                            <apex:outputText value="{!outProfileMaps[companyName][profId].email}" />
+                          </apex:outputLink>
+                        </div>
+                        <br/>
+                        <!-- 郵便番号 -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].postalCode.isRender}">
+                          <div class="postal">
+                            <span class="uk-margin-small-right">〒</span>
+                            <apex:outputText value="{!outProfileMaps[companyName][profId].postalCode}" />
+                          </div>
+                        </apex:outputPanel>
+                        <!-- 住所 -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].address.isRender}">
+                          <div class="address">
+                            <span uk-icon="icon:location" class="uk-margin-small-right"></span>
+                            <apex:outputText value="{!outProfileMaps[companyName][profId].address}" />
+                          </div>
+                        </apex:outputPanel>
+                        <!-- 代表電話番号 -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].tel.isRender}">
+                          <div class="tel">
+                            <apex:outputLink value="tel:{!outProfileMaps[companyName][profId].tel}">
+                              <span uk-icon="icon:receiver" class="uk-margin-small-right"></span>
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].tel}" />
+                            </apex:outputLink>
+                          </div>
+                        </apex:outputPanel>
+                        <!-- Webサイト -->
+                        <apex:outputPanel layout="none" rendered="{!outProfileMaps[companyName][profId].website.isRender}">
+                          <div class="other">
+                            <apex:outputLink value="{!outProfileMaps[companyName][profId].website}" target="_blank">
+                              <span uk-icon="icon:world" class="uk-margin-small-right"></span>
+                              <apex:outputText value="{!outProfileMaps[companyName][profId].website}" />
+                            </apex:outputLink>
+                          </div>
+                        </apex:outputPanel>
+                      </div>
+                      <!-- プロフィールごとのボタン -->
+                      <div class="uk-card-footer">
+                        <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right" onclick="onlineProfile.profileExchanger.copyClipboard('txt-{!JSENCODE(profId)}')">
+                          <span uk-icon="icon: copy"></span>コピー
+                        </button>
+                        <button type="button" class="uk-button uk-button-primary uk-button-small uk-align-right" style="text-transform:none;" onclick="downloadVCard('{!JSENCODE(profId)}')">
+                          <span uk-icon="icon: download"></span>連絡先登録(vCard)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!--
+                                        コピー Value
+                                          注意 apex:inputTextarea を使うと「プロフィールを送り返す」ボタンが機能しなくなる (原因不明)
+                                      -->
+                  <textarea id="txt-{!JSENCODE(profId)}" style="display:none;">{!HTMLENCODE(outProfileMaps[companyName][profId].text)}</textarea>
+                </apex:repeat>
+              </div>
+            </apex:repeat>
+            <!-- 全てコピー Value -->
+            <apex:inputTextarea value="{!textProfiles}" id="textAll" style="display:none;" />
+            <!-- ボタン -->
+            <div class="footer-buttons uk-position-bottom uk-position-fixed uk-button-group uk-flex uk-child-width-expand uk-box-shadow-small">
+              <div class="uk-visible@s uk-box-shadow-hover-small">
+                <button type="button" class="uk-button uk-button-default uk-width-1-1">
+                  <span uk-icon="icon: cloud-download"></span>CSVダウンロード
+                </button>
+                <div uk-dropdown="pos: top-justify" class="uk-dropdown uk-dropdown-top-justify">
+                  <ul class="uk-nav uk-dropdown-nav">
+                    <li class="uk-nav-header">標準形式</li>
+                    <li class="uk-nav-divider"></li><li style="text-indent:20px;"><a href="javascript:downloadCsv('OP')">Excel等</a></li>
+                    <li class="uk-nav-header" style="text-transform:none;">Salesforceインポート形式</li>
+                    <li class="uk-nav-divider"></li><li style="text-indent:20px;"><a href="javascript:downloadCsv('AC')">取引先/取引先責任者</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="uk-box-shadow-hover-small">
+                <button type="button" class="uk-button uk-button-default uk-width-1-1" onclick="onlineProfile.profileExchanger.copyClipboard('{!JSENCODE($Component.textAll)}')">
+                  <span uk-icon="icon: copy"></span>全てコピー
+                </button>
+              </div>
+              <div class="uk-box-shadow-hover-small footer-buttons__next">
+                <apex:outputPanel layout="none" rendered="{!isReturned==false}">
+                  <button type="button" class="uk-button uk-button-default uk-width-1-1" onclick="inputPage()">
+                    <span uk-icon="icon: pencil"></span>プロフィールを送り返す
+                    <span uk-icon="icon: arrow-right"></span>
+                  </button>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!isReturned}">
+                  <button type="button" disabled="true" class="uk-button uk-button-default uk-width-1-1">
+                    <span uk-icon="icon: pencil"></span>プロフィールを送り返す
+                    <span uk-icon="icon: arrow-right"></span>
+                  </button>
+                </apex:outputPanel>
+
+              </div>
+            </div>
+            <!-- 電話帳登録 -->
+            <apex:actionRegion >
+              <apex:actionFunction id="none" name="downloadVCard" rerender="none" oncomplete="completeDownloadVCard()">
+                <apex:param name="outProfileIdParam" assignTo="{!outProfileId}" value="" />
+              </apex:actionFunction>
+              <apex:actionFunction name="completeDownloadVCard" action="{!downloadVCard}" />
+            </apex:actionRegion>
+            <!-- CSVダウンロード -->
+            <apex:actionRegion >
+              <apex:actionFunction id="downloadCsv" name="downloadCsv" rerender="downloadCsv" oncomplete="completeDownloadCsv()">
+                <apex:param name="csvType" assignTo="{!csvType}" value="" />
+              </apex:actionFunction>
+              <apex:actionFunction name="completeDownloadCsv" action="{!downloadCsv}" />
+            </apex:actionRegion>
+            <!-- プロフィールを送り返すページへ -->
+            <apex:actionRegion >
+              <apex:actionFunction name="inputPage" action="{!inputPage}" />
+            </apex:actionRegion>
+            <!-- メッセージ アコーディオン -->
+            <script>
+              onlineProfile.profileExchanger.onMessage("{!URLFOR($Resource.OnlineProfile + '/images/more.svg')}");
+            </script>
+          </apex:form>
+        </apex:outputPanel>
+        <!-- フッター -->
+        <footer class="index-footer">
+          <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/footer-logo.svg')}" styleClass="uk-align-center" alt="" />
+          <div class="uk-text-center">
+            <a target="_blank" href="https://www.sunbridge.com/">
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/sb-logo.png')}" alt="" />
+            </a>
+          </div>
+        </footer>
+      </apex:outputPanel>
+      <!-- エラーメッセージ表示 -->
+      <apex:outputPanel layout="none" rendered="{!hasError}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <h1>
+            <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+          </h1>
+          <h2>
+            <apex:messages />
+          </h2>
+        </apex:outputPanel>
+        <footer class="index-footer">
+          <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/footer-logo.svg')}" styleClass="uk-align-center" alt="" />
+          <div class="uk-text-center">
+            <a target="_blank" href="https://www.sunbridge.com/">
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/sb-logo.png')}" alt="" />
+            </a>
+          </div>
+        </footer>
+        <script>$('body').attr('id', 'error-page')</script>
+      </apex:outputPanel>
+    </apex:outputPanel>
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.validate.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit-icons.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/profile_exchanger.min.js')}" />
+  </body>
+
+  </html>
+</apex:page>

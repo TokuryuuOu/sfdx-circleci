@@ -1,0 +1,166 @@
+<!-- OnlineProfile スタートページ -->
+<apex:page controller="OnlineProfileHomePageController" title="Online Profile for Salesforce スタート画面" applyBodyTag="false"
+  standardStylesheets="false" sidebar="false" docType="html-5.0" cache="false">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--IE対策：互換表示させない。-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Online Profile for Salesforce スタート画面</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet"
+    />
+    <apex:stylesheet value="{!URLFOR($Resource.OnlineProfile, '/css/style.css')}" />
+    <style>
+      td.noSidebarCell { background-color: #00305e }
+    </style>
+  </head>
+
+  <body>
+    <apex:outputPanel layout="none" id="page">
+      <!-- 0件 -->
+      <apex:outputPanel layout="none" rendered="{!myProfiles.size == 0}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <apex:form>
+            <h1 class="uk-display-block">
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+            </h1>
+            <h3 class="uk-text-center uk-display-block">まずはプロフィールを登録しましょう</h3>
+            <h4 class="uk-text-center uk-display-block">プロフィールを登録後、あなた専用のURLを相手に送ることでオンラインでのプロフィール交換が実現できます。</h4>
+            <br />
+            <div class="uk-child-width-1-2@s uk-grid-match" uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 100" uk-grid="masonry: true">
+              <div class="uk-first-column uk-scrollspy-inview uk-animation-fade uk-margin-auto">
+                <div class="uk-card uk-card-hover uk-card-body uk-light">
+                  <div class="uk-card-header">
+                    <div class="uk-card-title">
+                      <div class="uk-card-title">
+                        オンプロ 花子
+                        <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/avatar.jpg')}" styleClass="uk-float-right uk-border-circle"
+                          alt="image" />
+                      </div>
+                      <div>営業部 - アシスタント</div>
+                    </div>
+                  </div>
+                  <!-- uk-card-title END -->
+                  <div class="uk-card-body">
+                    <!--
+                    <blockquote>
+                      <p class="uk-margin-small-bottom">まずはプロフィールを登録して<br />プロフィール交換を始めましょう</p>
+                    </blockquote>
+                    -->
+                    <div class="phone">090-XXXX-XXXX</div>
+                    <div class="email">optaro@example.com</div>
+                    <br/>
+                    <div class="postal">〒150-0022</div>
+                    <div class="address">東京都渋谷区恵比寿南1-5-5 JR恵比寿ビル 11F</div>
+                    <br/>
+                  </div>
+                  <!-- uk-card-body END -->
+                </div>
+              </div>
+            </div>
+            <br />
+            <div style="text-align:center">
+              <input type="button" class="uk-button uk-button-primary uk-width-1-4 uk-margin-small-bottom uk-grid-margin uk-margin-auto profile-regist-button" value="マイプロフィールを登録" onclick="convertUserInfo()" />
+            </div>
+            <apex:actionRegion >
+              <apex:actionFunction name="convertUserInfo" action="{!convertUserInfo}" />
+            </apex:actionRegion>
+          </apex:form>
+        </apex:outputPanel>
+      </apex:outputPanel>
+      <!-- 0件 -->
+      <!-- 1件以上 -->
+      <apex:outputPanel layout="none" rendered="{!myProfiles.size > 0}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <apex:form>
+            <div style="text-align:right">
+              <input type="button" class="uk-button uk-button-primary uk-width-1-4 uk-margin-small-bottom uk-grid-margin uk-margin-auto profile-regist-button" value="マイプロフィールを登録" onclick="convertUserInfo()" />
+            </div>
+            <apex:actionRegion >
+              <apex:actionFunction name="convertUserInfo" action="{!convertUserInfo}" />
+            </apex:actionRegion>
+              <h1 class="uk-display-block">
+                <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+              </h1>
+              <h3 class="uk-text-center uk-display-block">登録したプロフィールを送りましょう</h3>
+              <h4 class="uk-text-center uk-display-block">例えばオンライン会議の参加者のプロフィールを追加して、打ち合わせ相手にまとめて送ることもできます。<br class="line-break-desktop" />送った相手にプロフィールを入力してもらえば、プロフィール交換が実現します。</h4>
+              <br />
+              <apex:repeat value="{!myProfiles}" var="myProf">
+                <h3 class="uk-text-center uk-display-block">{!myProf.CompanyName__c}</h3>
+                <div class="uk-child-width-1-2@s uk-grid-match" uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 100" uk-grid="masonry: true">
+                  <div class="uk-first-column uk-scrollspy-inview uk-animation-fade uk-margin-auto">
+                    <div class="uk-card uk-card-hover uk-card-body uk-light">
+                      <div class="uk-card-header">
+                        <div class="uk-card-title">
+                          <div class="uk-card-title">
+                            {!myProf.LastName__c} {!myProf.FirstName__c}
+                            <apex:outputPanel layout="none" rendered="{!myProf.ImageUrl__c != null}">
+                              <div class="uk-float-right profile-card-image" style="background-image: url({!myProf.ImageUrl__c});"/>
+                            </apex:outputPanel>
+                          </div>
+                          <apex:outputPanel layout="block" rendered="{!myProf.Department__c != null || myProf.Title__c != null}">{!myProf.Department__c}<apex:outputText value=" - " rendered="{!myProf.Department__c != null && myProf.Title__c != null}" />{!myProf.Title__c}</apex:outputPanel>
+                        </div>
+                      </div>
+                      <!-- uk-card-title END -->
+                      <div class="uk-card-body">
+                        <apex:outputPanel layout="block" rendered="{!myProf.Message__c != null}">
+                          <blockquote><p class="uk-margin-small-bottom">{!myProf.Message__c}</p></blockquote>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.MobilePhone__c != null}"><span uk-icon="icon:phone" class="uk-margin-small-right"></span>{!myProf.MobilePhone__c}</apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.Tel1__c != null}"><span uk-icon="icon:receiver" class="uk-margin-small-right"></span>{!myProf.Tel1__c}</apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.Tel2__c != null}"><span uk-icon="icon:receiver" class="uk-margin-small-right"></span>{!myProf.Tel2__c}</apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.Email__c != null}"><span uk-icon="icon:mail" class="uk-margin-small-right"></span>{!myProf.Email__c}</apex:outputPanel>
+                        <br/>
+                        <apex:outputPanel layout="block" rendered="{!myProf.PostalCode__c != null}"><span class="uk-margin-small-right">〒</span>{!myProf.PostalCode__c}</apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.State__c != null || myProf.City__c != null || myProf.Street__c != null}">
+                          <span uk-icon="icon:location" class="uk-margin-small-right"></span>
+                          <apex:outputPanel layout="none" rendered="{!myProf.State__c != null}">{!myProf.State__c}</apex:outputPanel>
+                          <apex:outputPanel layout="none" rendered="{!myProf.City__c != null}">{!myProf.City__c}</apex:outputPanel>
+                          <apex:outputPanel layout="none" rendered="{!myProf.Street__c != null}">{!myProf.Street__c}</apex:outputPanel>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.Tel__c != null}"><span uk-icon="icon:receiver" class="uk-margin-small-right"></span>{!myProf.Tel__c}</apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!myProf.Website__c != null}"><span uk-icon="icon:world" class="uk-margin-small-right"></span>{!myProf.Website__c}</apex:outputPanel>
+                        <br/>
+                      </div>
+                      <!-- uk-card-body END -->
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-text-center uk-display-block">
+                  <input type="button" class="uk-button uk-margin-small-top uk-margin-small-bottom uk-margin-auto" style="background-color: #FFFFFF;color: #2088F0;border: 1px solid transparent;border-color: #2088F0;" value="プロフィールを編集" onclick="navigateToURL('/{!myProf.Id}');" />
+                  <input type="button" class="uk-button uk-button-primary uk-margin-small-top uk-margin-small-bottom uk-margin-auto" value="このプロフィールを送る" onclick="openUrlGenerator('{!myProf.Id}');"/>
+                </div>
+              </apex:repeat>
+               <!-- メッセージ アコーディオン -->
+              <script>
+                onlineProfile.profileExchanger.onMessage("{!URLFOR($Resource.OnlineProfile + '/images/more.svg')}");
+                function navigateToURL(url){
+                    if((typeof sforce != 'undefined') && sforce && (!!sforce.one)){
+                        sforce.one.navigateToURL(url);
+                    } else {
+                        window.location=url;
+                    }
+                }
+                function openUrlGenerator(myProfId){
+                    var url = new URL('{!URLFOR("/apex/UrlGenerator")}');
+                    url.searchParams.append('id', myProfId);
+                    window.open(url.toString());
+                }
+              </script>
+          </apex:form>
+        </apex:outputPanel>
+        <!-- 1件以上 -->
+        <script>$('body').attr('id', 'start-page')</script>
+      </apex:outputPanel>
+    </apex:outputPanel>
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.validate.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit-icons.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/profile_exchanger.min.js')}" />
+  </body>
+</apex:page>

@@ -1,0 +1,4 @@
+<!-- OnlineProfile ファイルダウンローダ -->
+<apex:page controller="ProfileExchangerController" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" readOnly="true" cache="true" contentType="{!fileDownloader.contentType}">
+    <apex:outputText value="{!fileDownloader.body}"/>
+</apex:page>

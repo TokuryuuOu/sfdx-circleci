@@ -1,0 +1,53 @@
+<!-- OnlineProfile 画像登録 -->
+<apex:page standardController="MyProfile__c" extensions="ImageRegisterController" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false">
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="ja">
+        <head>
+            <meta charset="utf-8"/>
+            <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>画像登録</title>
+            <apex:slds />
+        </head>
+        <body>
+            <apex:form id="page">
+                <div class="slds-scope">
+                    <div class="slds-form-element slds-m-top_none slds-m-bottom_x-small">
+                        <div class="slds-form-element">
+                            <apex:inputFile value="{!contentVersion.VersionData}" filename="{!contentVersion.PathOnClient}" accept="image/jpeg,image/png,image/gif"/>
+                            <div class="slds-button-group slds-m-top_none slds-m-bottom_x-small" role="group">
+                                <input type="button" id="saveButton" value="画像登録" onclick="doSave()" class="slds-button slds-button--neutral" />
+                                <input type="button" id="deleteButton" value="画像削除" onclick="doDelete()" class="slds-button slds-button--neutral" />
+                                <script>
+                                    function doSave(){
+                                        document.getElementById("saveButton").setAttribute("disabled", true);
+                                        document.getElementById("deleteButton").setAttribute("disabled", true);
+                                        document.getElementById("saveButton").setAttribute("value", "アップロード中...");
+                                        save();
+                                    }
+                                    function doDelete(){
+                                        document.getElementById("saveButton").setAttribute("disabled", true);
+                                        document.getElementById("deleteButton").setAttribute("disabled", true);
+                                        document.getElementById("deleteButton").setAttribute("value", "削除中...");
+                                        deleteImage();
+                                    }
+                                </script>
+                            </div>
+                            <apex:actionRegion >
+                                <apex:actionFunction name="save" action="{!save}" />
+                                <apex:actionFunction name="deleteImage" action="{!deleteImage}" />
+                            </apex:actionRegion>
+                        </div>
+                    </div>
+                    <div class="slds-m-top_none slds-m-bottomi_x-small">
+                        <apex:messages style="color:red;"/>
+                    </div>
+                    <div class="slds-form-element">
+                        <apex:outputLink value="{!imageUrl}" target="_blank">
+                            <apex:image value="{!imageUrl}" url="{!imageUrl}" style="max-height:250px;"/>
+                        </apex:outputLink>
+                    </div>
+                </div>
+            </apex:form>
+        </body>
+    </html>
+</apex:page>

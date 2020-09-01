@@ -1,0 +1,293 @@
+<!-- OnlineProfile URL生成 -->
+<apex:component controller="UrlGeneratorController" allowDML="true">
+    <apex:attribute name="isGlobalAction" type="Boolean" default="false" description=""/>
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="ja">
+        <head>
+            <meta charset="utf-8"/>
+            <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>URL生成</title>
+            <apex:slds />
+            <script src='/canvas/sdk/js/publisher.js'></script>
+            <apex:includeScript value="{!$Resource.OnlineProfile + '/js/button.min.js'}"/>
+            <apex:includeScript value="{!$Resource.OnlineProfile + '/js/clipboard.min.js'}"/>
+            <style>
+                @media screen and (min-width: 600px){   
+                  .display-for-mobile { display:none; }
+                  .url-text-align { text-align: right; }
+
+                }
+                @media screen and (max-width: 600px){   
+                  .display-for-pc { display:none; }
+                  .display-for-mobile { display:inherit; }
+                  .url-text-align { text-align: center; }
+                }
+            </style>
+        </head>
+        <body>
+            <apex:form id="page" onkeydown="return handleSubmit(event);">
+                <div class="slds-scope">
+                    <!-- URL生成ページ -->
+                    <apex:outputPanel id="urlGeneratorPage" rendered="{!page='URL生成'}">
+                        <div class="slds-m-top_none slds-m-bottomi_x-small">
+                            <apex:messages />
+                        </div>
+                        <div class="display-for-pc slds-scrollable_y" style="height:60vh">
+                            <table class="slds-table slds-table_bordered">
+                                <tr>
+                                    <th></th>
+                                    <th>氏名</th>
+                                    <th>部署</th>
+                                    <th>メール</th>
+                                </tr>
+                                <apex:variable value="0" var="rowIndex" />
+                                <apex:repeat value="{!myProfList}" var="myProf">
+                                    <tr>
+                                        <td>
+                                            <div class="slds-form-element">
+                                                <apex:commandButton action="{!deleteProf}" value="削除" rerender="urlGeneratorPage" styleClass="slds-button slds-button_neutral">
+                                                    <apex:param name="vf_rownumber" value="{!rowIndex}" />
+                                                </apex:commandButton>
+                                                <apex:variable var="rowIndex" value="{!VALUE(rowIndex) + 1}" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div styleClass="slds-truncate">
+                                                <apex:outputText value="{!myProf.prof.LastName__c} {!myProf.prof.FirstName__c}"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div styleClass="slds-truncate">
+                                                <apex:outputText value="{!myProf.prof.Department__c}"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div styleClass="slds-truncate">
+                                                <apex:outputText value="{!myProf.prof.Email__c}"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </table>
+                        </div>
+                        <div class="display-for-mobile">
+                            <apex:variable value="0" var="rowIndex" />
+                            <apex:repeat value="{!myProfList}" var="myProf">
+                            <div class="slds-box" style="background:white;display: flex;justify-content: space-between;">
+
+                            <table style="width:auto">
+                            <tr>
+                                <td>氏名:</td>
+                                <td>
+                                    <div styleClass="slds-truncate">
+                                        <apex:outputText value="{!myProf.prof.LastName__c} {!myProf.prof.FirstName__c}"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>部署:</td>
+                                <td>
+                                    <div styleClass="slds-truncate">
+                                        <apex:outputText value="{!myProf.prof.LastName__c} {!myProf.prof.FirstName__c}"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>メール:</td>
+                                <td>
+                                    <div styleClass="slds-truncate">
+                                        <apex:outputText value="{!myProf.prof.Email__c}"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            </table>
+                            <div>
+                                <apex:commandButton action="{!deleteProf}" value="削除" rerender="urlGeneratorPage" styleClass="slds-button slds-button_neutral">
+                                    <apex:param name="vf_rownumber" value="{!rowIndex}" />
+                                </apex:commandButton>
+                                <apex:variable var="rowIndex" value="{!VALUE(rowIndex) + 1}" />
+                            </div>
+                            </div>
+                            </apex:repeat>
+                        </div>
+                        <div style="text-align:right">
+                            {!message}
+                        </div>
+                        <div class="slds-align_absolute-center">
+                            <apex:commandButton action="{!addMemberPage}" value="メンバーを追加する" disabled="{!disabledAddMemberButton}" rerender="page" styleClass="slds-button slds-button_neutral"/>
+                        </div>
+                        <div>
+                            <div style="height:30px">
+                                プロフィール交換ページに関する設定
+                            </div>
+                            <div>
+                                <table style="width:auto">
+                                    <tr>
+                                        <td>URLの有効期間:</td>
+                                        <td><apex:input type="datetime-local" rendered="true" value="{!viewExpirationDate}" style="width:200px" styleClass="slds-input"></apex:input></td>
+                                    </tr>
+                                    <tr>
+                                        <td>表示回数:</td>
+                                        <td><apex:input id="viewCountLimit" type="number" required="true" value="{!viewCountLimit}" style="width:150px" styleClass="slds-input" onkeyup="checkCountLength();" onkeydown="checkCountLength();"></apex:input>&nbsp;回まで</td>
+                                    </tr>
+                                    <tr>
+                                        <td>パスワード:</td>
+                                        <td>
+                                            <div><apex:outputText id="passwordError" style="color:red;" /></div>
+                                            <apex:input id="password" type="text" rendered="true" value="{!password}" style="width:100px" styleClass="slds-input" onkeyup="checkPassword();" onkeydown="checkPassword();"></apex:input>
+                                            ※閲覧時のパスワードを設定することができます
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>返信通知メールを受け取る：</td>
+                                        <td><apex:inputCheckbox id="isSendNotify" value="{!isSendNotify}"></apex:inputCheckbox></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="slds-align_absolute-center slds-button-group slds-m-top_none slds-m-bottom_x-small" role="group" style="height:10vh">
+                            <apex:commandButton action="{!generateUrl}" value="URLを生成する"  onclick="if(checkPassword() == false){return false;}" disabled="{!disabledGenButton}" rerender="page" styleClass="slds-button slds-button_brand"/>
+                            <apex:outputPanel rendered="{!NOT($User.UITheme == 'Theme4t')}">
+                                <apex:commandButton value="閉じる" rendered="{!OR(NOT(isClassic), NOT(isGlobalAction))}" onclick="window.close()" styleClass="slds-button slds-button_neutral"/>
+                            </apex:outputPanel>
+                        </div>
+                    </apex:outputPanel>
+
+                    <!-- メーバー追加ページ -->
+                    <apex:outputPanel id="addMemberPage" rendered="{!page='メンバー追加'}">
+                        <div>
+                            <div>
+                                <apex:inputCheckbox id="isDefault" value="{!isDefault}">
+                                    <apex:outputLabel >メインプロフィールに絞り込む：</apex:outputLabel>
+                                </apex:inputCheckbox>
+                            </div>
+                            <div>
+                                <apex:inputText value="{!searchString}" id="searchString" html-placeholder="氏名/部署/メールで検索..." style="width:300px" styleClass="slds-input">
+                                    <apex:outputLabel >検索条件：</apex:outputLabel>
+                                </apex:inputText>
+                                <apex:commandButton action="{!searchProf}" value="検索" rerender="addMemberPage" styleClass="slds-button slds-button_neutral"/>
+                            </div>
+                        </div>
+                        <div class="slds-m-top_none slds-m-bottomi_x-small">
+                            <apex:messages />
+                        </div>
+                        <div class="slds-scrollable_y" style="height:70vh">
+                            <table class="slds-table slds-table_bordered">
+                                <tr>
+                                    <th><input type="checkbox" onClick="checkAllBox(this);" class="allControl" /></th>
+                                    <th>氏名</th>
+                                    <th>部署</th>
+                                    <th>メール</th>
+                                </tr>
+                                <apex:repeat value="{!searchProfList}" var="searchProf">
+                                    <tr>
+                                        <td>
+                                            <div class="slds-checkbox">
+                                                <apex:inputCheckbox value="{!searchProf.checked}" id="searchProfCheckBox" styleClass="selectInput" onclick="resetAllControl()" />
+                                                <label class="slds-checkbox__label" for="{!$Component.searchProfCheckBox}">
+                                                    <span class="slds-checkbox--faux"/>
+                                                    <span class="slds-form-element__label"/>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div styleClass="slds-truncate">
+                                                <apex:outputText value="{!searchProf.prof.LastName__c} {!searchProf.prof.FirstName__c}"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div styleClass="slds-truncate">
+                                                <apex:outputText value="{!searchProf.prof.Department__c}"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div styleClass="slds-truncate">
+                                                <apex:outputText value="{!searchProf.prof.Email__c}"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </table>
+                        </div>
+                        <div class="slds-align_absolute-center" style="height:10vh">
+                            <div class="slds-m-right_x-small">
+                                <apex:commandLink action="{!prevSearchProf}" value="前へ" rerender="addMemberPage" rendered="{!pager.renderPrevLink}"/>
+                                <apex:outputText value="前へ" rendered="{!NOT(pager.renderPrevLink)}"/>
+                            </div>
+                            <div class="slds-m-left_x-small">
+                                <apex:commandLink action="{!nextSearchProf}" value="次へ" rerender="addMemberPage" rendered="{!pager.renderNextLink}"/>
+                                <apex:outputText value="次へ" rendered="{!NOT(pager.renderNextLink)}"/>
+                            </div>
+                        </div>
+                        <div class="slds-align_absolute-center slds-button-group slds-m-top_none slds-m-bottom_x-small" role="group" style="height:10vh">
+                            <apex:commandButton action="{!addProf}" value="選択中のメンバーを追加する" disabled="{!disabledAddButton}" rerender="page" styleClass="slds-button slds-button_neutral"/>
+                            <apex:commandButton action="{!generateUrlPage}" value="戻る" rerender="page" styleClass="slds-button slds-button_neutral"/>
+                        </div>
+
+                    </apex:outputPanel>
+                    <!-- 全てチェック・解除制御 -->
+                    <apex:outputPanel id="urlGeneratoraddMemberPage" rendered="{!page!='URL出力'}">
+                        <script>
+                            function checkAllBox(cb) { 
+                                var inputList = document.getElementsByClassName('selectInput');
+                                for(var i=0;i<inputList.length;i++){
+                                    document.getElementsByClassName('selectInput')[i].checked = cb.checked;
+                                }
+                            }
+                            function resetAllControl() {
+                                var inputList = document.getElementsByClassName('selectInput');
+                                var flg = true;
+                                for(var i=0;i<inputList.length;i++){
+                                    if ( !document.getElementsByClassName('selectInput')[i].checked ){
+                                        flg = false;
+                                        break;
+                                    }
+                                }
+                                document.getElementsByClassName('allControl')[0].checked = flg;
+                            }
+                            function checkPassword() {
+                                var password = document.getElementById("{!$Component.page.password}").value;
+                                if(password.match(/^[a-zA-Z0-9!-/:-@¥[-`{-~]*$/)){
+                                    document.getElementById("{!$Component.page.passwordError}").innerHTML = '';
+                                    return true;
+                                } else {
+                                    document.getElementById("{!$Component.page.passwordError}").innerHTML = 'パスワードは半角英数記号で入力してください。';
+                                    return false;
+                                }
+                            }
+                            function handleSubmit(e){
+                                if(!e) var e = window.event;
+                                if(e.keyCode===13 && e.srcElement.type!=='submit'){
+                                    return false;
+                                }
+                            }
+                            function checkCountLength(){
+                                var viewCount = document.getElementById("{!$Component.page.viewCountLimit}").value;
+                                if(viewCount.length > 10){
+                                    document.getElementById("{!$Component.page.viewCountLimit}").value = viewCount.substring(0, 10);
+                                }
+                            }
+
+                        </script>
+                    </apex:outputPanel>
+
+                    <!-- URL出力ページ -->
+                    <apex:outputPanel id="urlViewPage" rendered="{!page='URL出力'}">
+                        <div class="slds-m-top_none slds-m-bottomi_x-small">
+                            <apex:messages />
+                        </div>
+                        <div class="slds-box slds-theme_shade">
+                            <div style="float: left"><apex:outputText value="{!exchangeProfUrl}" id="exProfUrl"/></div>
+                            <div class="url-text-align"><apex:commandButton value="URLをコピー" onclick="onlineProfile.clipboard.copy('{!JSENCODE(exchangeProfUrl)}', this, 'コピーしました。', 2000)" rerender="exProfUrl" styleClass="slds-button slds-button_neutral"/></div>
+                        </div>
+                        <div class="slds-align_absolute-center slds-button-group slds-m-top_none slds-m-bottom_x-small" role="group" style="height:10vh">
+                            <apex:outputPanel rendered="{!NOT($User.UITheme == 'Theme4t')}">
+                                <apex:commandButton value="閉じる" rendered="{!OR(NOT(isClassic), NOT(isGlobalAction))}" onclick="window.close()" styleClass="slds-button slds-button_neutral"/>
+                            </apex:outputPanel>
+                        </div>
+                    </apex:outputPanel>
+                </div>
+            </apex:form>
+        </body>
+    </html>
+</apex:component>

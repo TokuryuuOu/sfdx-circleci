@@ -1,0 +1,84 @@
+<!-- OnlineProfile プロフィール交換 -->
+<apex:page controller="ProfileExchangerController" action="{!init}" showHeader="false" sidebar="false" standardStylesheets="false"
+  applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" cache="false">
+  <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="ja">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--IE対策：互換表示させない。-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Online Profile - オンラインプロフィール</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet"
+    />
+    <apex:stylesheet value="{!URLFOR($Resource.OnlineProfile, '/css/style.css')}" />
+  </head>
+
+  <body>
+    <apex:outputPanel layout="none" id="page">
+      <!-- プロフィール返信 -->
+      <apex:outputPanel layout="none" rendered="{!hasError == false}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <apex:form >
+            <h1>
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+            </h1>
+            <h2>
+              <apex:messages />
+            </h2>
+            <div class="thanks-wrapper uk-align-center">
+              <a href="javascript:viewPage()" class="uk-flex uk-flex-middle uk-align-center uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom">
+                <span>
+                  <span uk-icon="icon: chevron-double-left;"></span> 受け取ったプロフィール一覧に戻る</span>
+              </a>
+            </div>
+            <!-- プロフィール一覧ページへ -->
+            <apex:actionRegion >
+              <apex:actionFunction name="viewPage" action="{!viewPage}" />
+            </apex:actionRegion>
+          </apex:form>
+        </apex:outputPanel>
+        <footer class="index-footer">
+          <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/footer-logo.svg')}" styleClass="uk-align-center" alt="" />
+          <div class="uk-text-center">
+            <a target="_blank" href="https://www.sunbridge.com/">
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/sb-logo.png')}" alt="" />
+            </a>
+          </div>
+        </footer>
+        <script>$('body').attr('id', 'thanks-page')</script>
+      </apex:outputPanel>
+      <!-- エラーメッセージ表示 -->
+      <apex:outputPanel layout="none" rendered="{!hasError}">
+        <apex:outputPanel layout="block" styleClass="inner">
+          <h1>
+            <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/logo.svg')}" />
+          </h1>
+          <h2>
+            <apex:messages />
+          </h2>
+        </apex:outputPanel>
+        <footer class="index-footer">
+          <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/footer-logo.svg')}" styleClass="uk-align-center" alt="" />
+          <div class="uk-text-center">
+            <a target="_blank" href="https://www.sunbridge.com/">
+              <apex:image value="{!URLFOR($Resource.OnlineProfile + '/images/sb-logo.png')}" alt="" />
+            </a>
+          </div>
+        </footer>
+        <script>$('body').attr('id', 'error-page')</script>
+      </apex:outputPanel>
+    </apex:outputPanel>
+
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/jquery.validate.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/uikit-icons.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.OnlineProfile + '/js/profile_exchanger.min.js')}" />
+  </body>
+
+  </html>
+</apex:page>

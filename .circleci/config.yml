@@ -1,69 +1,468 @@
-version: 2
+version: 2.1
+orbs:
+  sfdx: circleci/salesforce-sfdx@2.1.0
+  slack: circleci/slack@3.4.2
 
-general:
-# Uncomment the following to specify only a specific branch
-#   branches:
-#     only:
-#       - dev # specific branch
-#       - /dev-.*/ # or regexes
-
+####################################################################################################
+## JOB:     build-and-test
+## PURPOSE:
+####################################################################################################
 jobs:
-  build:
-    machine: true
-    working_directory: ~/ci_app
-    environment:
-      # from https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli_standalone.htm
-      # and https://developer.salesforce.com/media/salesforce-cli/manifest.json
-      - DX_CLI_URL: https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+  build-and-test:
+    executor: sfdx/default
+    working_directory: ~/onlineprofile-package
     steps:
       - checkout
+      - sfdx/install:
+          version: "7.69.0"
+      #　DEV環境認証開始
       - run:
-          name: Download CLI
-          command: |
-            mkdir sfdx
-            wget -qO- $DX_CLI_URL | tar xJ -C sfdx --strip-components 1
-      - run:
-          name: Install CLI
-          command: |
-            ./sfdx/install
-            sfdx
-            mkdir tmp
-      - run:
-          name: Create hub key
-          command: |
-            echo 'make hub key'
-            #- mkdir keys
-            #- echo $HUB_SERVER_KEY_HEX | xxd -r -ps >> keys/hub.key
-            openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K $DECRYPTION_KEY -iv $DECRYPTION_IV
-            #- openssl rsa -in keys/hub.key -check -noout
-          ### Uncomment the following if performing deployments
-          #- echo 'make deploy key'
-          #- echo $DEPLOY_SERVER_KEY_HEX | xxd -r -ps >> keys/deploy.key
-          #- openssl rsa -in keys/deploy.key -check -noout
-          #- sfdx force:auth:jwt:grant --clientid $DEPLOY_CONSUMER_KEY --jwtkeyfile keys/deploy.key --username $DEPLOY_SFDC_USER -a deploy
+          name: create DEV org server key
+          command : |
+            if [ $CIRCLE_PULL_REQUEST ]; then
+              openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
+            else
+              exit 0
+            fi
+      - run: 
+          name: DEV jwt
+          command : | 
+            if [ $CIRCLE_PULL_REQUEST ]; then
+              sfdx force:auth:jwt:grant --clientid ${HUB_CONSUMER_KEY} --jwtkeyfile assets/server.key --username ${HUB_SFDC_USER} --setdefaultdevhubusername --setalias DEV-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+            else
+              exit 0
+            fi
+      #　DEV環境認証完了
       - run:
           name: Setup Org
           command: |
-            echo 'Running tests'
-            sfdx force:auth:jwt:grant --clientid $HUB_CONSUMER_KEY --jwtkeyfile assets/server.key --username $HUB_SFDC_USER --setdefaultdevhubusername -a hub
-            sfdx force --help
-            sfdx force:org:create -s -f ~/ci_app/config/project-scratch-def.json -a circle_build_$CIRCLE_BUILD_NUM --wait 2
-            sfdx force:source:push -u circle_build_$CIRCLE_BUILD_NUM
+            if [ $CIRCLE_PULL_REQUEST ]; then
+              echo 'Test scratch環境の作成 '
+              sfdx force:limits:api:display -u DEV-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+              sfdx force:org:create -f ~/onlineprofile-package/config/project-scratch-def.json -a circle_build_test -s -d 1 --wait 5
+              sfdx force:source:push -u circle_build_test
+              sfdx force:user:create --setalias ${CIRCLE_WORKFLOW_ID}@test.org --definitionfile config/project-user-admin-def.json
+            else
+              exit 0
+            fi
       - run:
           name: Run Apex Tests
           command: |
-            mkdir -p ~/junit
-            sfdx force:apex:test:run -c -d ~/junit -r junit --wait 5
+            if [ $CIRCLE_PULL_REQUEST ]; then
+              echo 'Running Apex Tests'
+              mkdir -p ~/junit
+              sfdx force:apex:test:run -c -d ~/junit -r junit -u ${CIRCLE_WORKFLOW_ID}@test.org --wait 5
+              echo 'export TESTMSG_HEAD=$(echo Unit Test が正常に完了しました。)' >> $BASH_ENV
+              source $BASH_ENV
+            else
+              echo 'export TESTMSG_HEAD=$(echo PRを出していない場合、Unit Test が実行しません。)' >> $BASH_ENV
+              source $BASH_ENV
+              exit 0
+            fi
       - store_test_results:
           path: ~/junit
+
       - run:
           name: Delete Useless Scratch Org
           command: |
-            sfdx force:org:delete -u circle_build_$CIRCLE_BUILD_NUM -p
+            if [ $CIRCLE_PULL_REQUEST ]; then
+              sfdx force:org:delete -u circle_build_test -p
+            else
+              exit 0
+            fi
+      - slack/notify:
+          channel: ${SLACK_CHANNEL}
+          color: '#42e2f4'
+          message: "${TESTMSG_HEAD} \n 名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH}"
+          webhook: '${SLACK_WEBHOOK}'
+          include_job_number_field: false
 
-### Uncomment the following if performing deployments
-#deployment:
-#  override:
-#    - sfdx force:source:convert -r force-app -d testDeploy
-#    - . cleanupDeploy.sh
-#    - sfdx force:mdapi:deploy -d testDeploy/ -u deploy -w 2
+      - slack/status:
+          fail_only: true
+          channel: ${SLACK_CHANNEL}
+          webhook: '${SLACK_WEBHOOK}'
+          failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：$CIRCLE_BRANCH \n CIRCLE JOB が失敗しました。確認してください。"
+
+####################################################################################################
+## JOB:     create-feature-scratch
+## PURPOSE:
+####################################################################################################
+  create-feature-scratch:
+    executor: sfdx/default
+    working_directory: ~/onlineprofile-package
+    steps:
+      - checkout
+      - sfdx/install:
+          version: "7.69.0"
+      - run: echo $CIRCLE_BRANCH
+      #　DEV環境認証開始
+      - run: 
+          name: create DEV org server key
+          command : openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
+      - run: 
+          name: DEV jwt
+          command : sfdx force:auth:jwt:grant --clientid ${HUB_CONSUMER_KEY} --jwtkeyfile assets/server.key --username ${HUB_SFDC_USER} --setdefaultdevhubusername --setalias DEV-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+      #　DEV環境認証完了
+
+      - run:
+          name: create-feature-scratch
+          command: |
+            sfdx force:data:soql:query -q "SELECT Name,OrgName,ScratchOrg,Description FROM ScratchOrgInfo WHERE status = 'Active' AND OrgName = '$CIRCLE_BRANCH'" -u DEV-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH} | wc -l > scratchorg.cnt
+            cat scratchorg.cnt
+            SCRATCH_CNT=$(cat scratchorg.cnt)
+            echo "scratch:count=${SCRATCH_CNT}"
+            echo "'$CIRCLE_BRANCH'"
+            echo "${CIRCLE_BRANCH}"
+            if [ "${SCRATCH_CNT}" = "1" ]; then
+              echo 'Featrue scratch環境の作成 '
+              sfdx force:org:create -f config/project-scratch-def.json orgName=${CIRCLE_BRANCH} -a ${CIRCLE_BRANCH} -s -d 30 --wait 10
+              sfdx force:source:push -u ${CIRCLE_BRANCH}
+              sfdx force:user:create --setalias ${CIRCLE_WORKFLOW_ID}@feature.org --definitionfile config/project-user-admin-def.json
+              sfdx force:user:password:generate -u ${CIRCLE_WORKFLOW_ID}@feature.org
+              sfdx force:user:display --targetusername ${CIRCLE_WORKFLOW_ID}@feature.org | sed '1,3d' > ./dev_userPassword.txt
+              cat ./dev_userPassword.txt
+              echo 'export VERY_IMPORTANT=$(cat ./dev_userPassword.txt)' >> $BASH_ENV
+              echo 'export DEVMSG_HEAD=$(echo Featrue scratch環境を作成しました。)' >> $BASH_ENV
+              source $BASH_ENV
+            else
+              echo 'すでに環境が作成されています。'
+              echo 'export DEVMSG_HEAD=$(echo 当ブランチで既に環境が作成されています。)' >> $BASH_ENV
+              source $BASH_ENV
+            fi
+      - slack/notify:
+          channel: ${SLACK_CHANNEL}
+          color: '#42e2f4'
+          message: "${DEVMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${VERY_IMPORTANT}"
+          webhook: '${SLACK_WEBHOOK}'
+          include_job_number_field: false
+      
+      - slack/status:
+          fail_only: true
+          channel: ${SLACK_CHANNEL}
+          webhook: '${SLACK_WEBHOOK}'
+          failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：$CIRCLE_BRANCH \n CIRCLE JOB が失敗しました。確認してください。"
+
+####################################################################################################
+## JOB:     create-beta-package
+## PURPOSE:
+## NOTE:    developからpre-productionに手動マージとなります
+####################################################################################################
+  create-beta-package:
+    # 毎週月曜の零時に起動する
+    executor: sfdx/default
+    docker:
+      - image: circleci/node:current-browsers
+    steps:
+      - checkout
+      - sfdx/install:
+          version: "7.69.0"
+      - run:
+          name: create date files
+          command: |
+            # 先週の月曜日を取得
+            echo $(date "+%s" --date "last monday") > ./monday.txt
+            # 最新のcommit日を取得
+            echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
+            # betaパッケージパージョン名
+            echo $(date '+%Y%m%d') > ./version_name.txt
+      # #　PJT環境認証開始
+      # - run: 
+      #     name: create PKG org server key
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         openssl enc -nosalt -aes-256-cbc -d -in assets/server_pkg.key.enc -out assets/server_pkg.key -base64 -K ${PKGORG_DECRYPTION_KEY} -iv ${PKGORG_DECRYPTION_IV}
+      #       else
+      #         exit 0
+      #       fi
+      # - run: 
+      #     name: PKG jwt
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:auth:jwt:grant --clientid ${PKGORG_CONSUMER_KEY} --jwtkeyfile assets/server_pkg.key --username ${PKGORG_SFDC_USERNAME} --setdefaultdevhubusername --setalias PKG-${CIRCLE_PROJECT_REPONAME}-BETA
+      #       else
+      #         exit 0
+      #       fi
+      # #　PJT環境認証完了
+      # #　DEV環境認証開始
+      # - run: 
+      #     name: create DEV org server key
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
+      #       else
+      #         exit 0
+      #       fi
+      # - run: 
+      #     name: DEV jwt
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:auth:jwt:grant --clientid ${HUB_CONSUMER_KEY} --jwtkeyfile assets/server.key --username ${HUB_SFDC_USER} --setdefaultdevhubusername --setalias DEV-${CIRCLE_PROJECT_REPONAME}-BETA
+      #       else
+      #         exit 0
+      #       fi
+      # # DEV環境認証完了
+      # - run:
+      #     name: Convert SFDX source to MDAPI source
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:source:convert -r "$PACKAGE_DIRECTORY" \
+      #                                   -d "./mdapi-source/circle_build_$CIRCLE_BUILD_NUM" \
+      #                                   -n "$PACKAGE_NAME" \
+      #                                   --loglevel error
+      #       else
+      #         exit 0
+      #       fi
+      # - run:
+      #     name: Deploy MDAPI Source to the Packaging Org
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:mdapi:deploy -d "./mdapi-source/circle_build_$CIRCLE_BUILD_NUM" \
+      #                                 -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
+      #                                 -w 15 \
+      #                                 --verbose \
+      #                                 --loglevel error
+      #       else
+      #         exit 0
+      #       fi
+
+      # - run:
+      #     name: Create (upload) a new MANAGED BETA package version
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # betaパッケージパージョン名
+      #         VERSION_NAME=$(cat version_name.txt)
+      #         sfdx force:package1:version:create -i $METADATA_PACKAGE_ID \
+      #                                           -n "$VERSION_NAME" \
+      #                                           -d "Package version generated by CI process" \
+      #                                           -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
+      #                                           -w 15 \
+      #                                           --loglevel error > ./versionId.txt
+      #         sfdx force:package1:version:list -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
+      #                                         -i $METADATA_PACKAGE_ID \
+      #                                         --loglevel error > ./version_info.txt
+      #         # betaパッケージバージョンIDを取得
+      #         VID=$(cat ./versionId.txt)
+      #         echo 'VID1 : ' ${VID}
+      #         VID=`echo ${VID#*[}`
+      #         echo 'VID2 : ' ${VID}
+      #         VID=`echo ${VID%]*}`
+      #         echo 'VID3 : ' ${VID}
+      #         echo 'export VERSIONID_ENV=${VID}' >> $BASH_ENV
+      #         source $BASH_ENV
+      #         grep ${VERSIONID_ENV} ./version_info.txt > pkg_info.txt
+      #         echo 'QA scratch環境の作成 '
+      #         sfdx force:org:create -f config/project-scratch-def.json orgName=${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -a ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -n -s -d 30 --wait 10
+      #         sfdx force:org:list --all
+      #         sleep 120;sfdx force:package:install --package ${VERSIONID_ENV} -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} --publishwait 15 --wait 15
+      #       else
+      #         exit 0
+      #       fi
+
+      # - run:
+      #     name: deploy community src
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:source:deploy -p "sfdx-source/unpackaged" \
+      #                                 -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
+      #                                 -w 15 \
+      #                                 --verbose \
+      #                                 --loglevel error
+      #         sfdx force:source:deploy -p "sfdx-source/unmanaged/main/default/objects, \
+      #                                     sfdx-source/unmanaged/main/default/networks, \
+      #                                     sfdx-source/unmanaged/main/default/sharingRules, \
+      #                                     sfdx-source/unmanaged/main/default/aura, \
+      #                                     sfdx-source/unmanaged/main/default/pages, \
+      #                                     sfdx-source/unmanaged/main/default/siteDotComSites, \
+      #                                     sfdx-source/unmanaged/main/default/classes, \
+      #                                     sfdx-source/unmanaged/main/default/sites, \
+      #                                     sfdx-source/unmanaged/main/default/navigationMenus, \
+      #                                     sfdx-source/unmanaged/main/default/networkBranding" \
+      #                                 -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
+      #                                 -w 15  \
+      #                                 --verbose  \
+      #                                 --loglevel error
+      #         sfdx force:source:deploy -p "sfdx-source/unmanaged/main/default/profiles, \
+      #                                     sfdx-source/unmanaged/main/default/profilePasswordPolicies, \
+      #                                     sfdx-source/unmanaged/main/default/profileSessionSettings, \
+      #                                     sfdx-source/unmanaged/main/default/permissionsets" \
+      #                                 -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
+      #                                 -w 15 \
+      #                                 --verbose \
+      #                                 --loglevel error
+      #       else
+      #         exit 0
+      #       fi
+
+      # - run:
+      #     name: push beta tag and create admin user
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # betaパッケージパージョン名
+      #         VERSION_NAME=$(cat version_name.txt)
+      #         # betaタグを作成　例：beta_1.0.0_20200819
+      #         PKG_INFO=$(cat pkg_info.txt)
+      #         if [[ $PKG_INFO =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+      #           PKG_VERSION=${BASH_REMATCH[0]}
+      #         fi
+      #         TAG_HEAD=$(echo beta_)
+      #         UB=$(echo _)
+      #         BETA_TAG=$(echo $TAG_HEAD$PKG_VERSION$UB${VERSION_NAME})
+      #         echo '{"betatag":"'$BETA_TAG'"}' > data/beta_tag.json
+      #         git tag $BETA_TAG
+      #         git push origin $BETA_TAG
+      #         # テストユーザーの作成
+      #         sfdx force:user:create --setalias use01-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user01-def.json
+      #         sfdx force:user:display --targetusername use01-${CIRCLE_WORKFLOW_ID}@package.org
+      #         sfdx force:user:create --setalias use02-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user02-def.json
+      #         sfdx force:user:display --targetusername use02-${CIRCLE_WORKFLOW_ID}@package.org
+      #         sfdx force:user:create --setalias use03-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user03-def.json
+      #         sfdx force:user:display --targetusername use03-${CIRCLE_WORKFLOW_ID}@package.org
+      #         # adminユーザーの作成
+      #         sfdx force:user:create --setalias qa-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile config/project-user-admin-def.json
+      #         sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org | sed '1,3d' > ./qa_userPassword.txt
+      #         OLD_PW=$(grep Password ./qa_userPassword.txt|awk '{print $2}')
+      #         PW_JSON=$(cat data/qa_scratch_pw.json)
+      #         NEW_PW=$(echo $PW_JSON | jq -r '.newPassword')
+      #         sed -i -e "s/"$OLD_PW"/"$NEW_PW"/g" ./qa_userPassword.txt
+      #         cat ./qa_userPassword.txt
+      #         # qaスクラッチ環境情報を取得（ここはslack通知しない、情報をBASH環境変数に保存のみです）
+      #         echo 'export QAVERY_IMPORTANT=$(cat ./qa_userPassword.txt)' >> $BASH_ENV
+      #         echo 'export QAMSG_HEAD=$(echo ベターパッケージ QA scratch環境を作成しました。)' >> $BASH_ENV
+      #         source $BASH_ENV
+      #       else
+      #         echo 'export QAMSG_HEAD=$(echo 今週中に、当ブランチで新しいコミットが存在しないため、ベターパッケージを作成しません。)' >> $BASH_ENV
+      #         source $BASH_ENV
+      #       fi
+
+      # - run:
+      #     name: create test data
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # カスタム設定のデーダ作成
+      #         sfdx force:apex:execute -u qa-${CIRCLE_WORKFLOW_ID}@package.org -f scripts/apex/insertCustomSetting.apex
+      #         # MyProfileのデーダ作成
+      #         sfdx force:data:tree:import -f data/olPfSohoTest__MyProfile__c.json -u qa-${CIRCLE_WORKFLOW_ID}@package.org
+      #         # MyProfileの所有者指定
+      #         sfdx force:apex:execute -u qa-${CIRCLE_WORKFLOW_ID}@package.org -f scripts/apex/updateMyprofileOwner.apex
+      #       else
+      #         exit 0
+      #       fi
+
+      - run:
+          name: create info files and run e2e script
+          command: |
+            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+              # e2e側で、MyProfile詳細画面URLが必要ため、URL作成用IDを取得
+              # sfdx force:data:soql:query -q "SELECT Id FROM olPfSohoTest__MyProfile__c" -u qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/mp.json
+              # cat data/mp.json
+              # e2e用環境ログイン情報を取得
+              # sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/qa_scratch_info.json
+              # cat data/qa_scratch_info.json
+              # e2e実行
+              npm install
+              # npx mocha scripts/e2e/qa_community.js --timeout 0
+            else
+              exit 0
+            fi
+      
+      - run:
+          name: run onlineprofile function test
+          command: |
+            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+              echo $(npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0) | tee > data/onlineprofile_function_test_log.txt
+            else
+              exit 0
+            fi
+
+      - run:
+          name: run onlineprofile permission test1
+          command: |
+            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+              echo $(npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0) | tee > data/onlineprofile_permission_test_log1.txt
+            else
+              exit 0
+            fi
+
+      - run:
+          name: run onlineprofile permission test2
+          command: |
+            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+              echo $(npx mocha scripts/e2e/onlineprofile_permission_test2.js --timeout 0) | tee > data/onlineprofile_permission_test_log2.txt
+            else
+              exit 0
+            fi
+
+      - run:
+          name: edit test result
+          command: |
+            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+              PASS=$(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}')+$(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')+$(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+              FAIL=$(($(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')+$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')+$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
+              TOTAL=$(($PASS+$FAIL))
+              echo 'export PASS_NUM=$(echo $PASS)' >> $BASH_ENV
+              echo 'export FAIL_NUM=$(echo $FAIL)' >> $BASH_ENV
+              echo 'export TOTAL_NUM=$(echo $TOTAL)' >> $BASH_ENV
+              source $BASH_ENV
+            else
+              exit 0
+            fi
+
+      # # 環境情報の通知
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
+
+      # 初期テストの通知
+      - slack/notify:
+          channel: ${SLACK_CHANNEL}
+          color: '#42e2f4'
+          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：${TOTAL_NUM} \n OK：${PASS_NUM} \n NG：${FAIL_NUM}"
+          webhook: '${SLACK_WEBHOOK}'
+          include_job_number_field: false
+
+      # # CI失敗の通知
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
+      
+####################################################################################################
+## workflows
+##  commit-workflow
+##    build-and-test          PR発行した場合実行
+##    create-feature-scratch  featureブランチで実行
+##  scheduled-workflow
+##    create-beta-package     pre-productionブランチで、毎週月曜零時（「0 15 * * 0」はUTCの毎週日曜日の
+##                            午後3時、JSTの毎週月曜零時です）から実行、この一週間マージがないの場合、ジョブ
+##                            処理しません
+####################################################################################################
+workflows:
+  version: 2.1
+  commit-workflow:
+    jobs:
+      # - build-and-test:
+      #     context: org-sbdevhub-sohotest
+      - create-feature-scratch:
+          context: org-sbdevhub-sohotest
+          filters:
+            branches:
+              only: /^feature.*/
+      - create-beta-package:
+          context: org-sbdevhub-sohotest
+          filters:
+            branches:
+              only: pre-production1
+  # scheduled-workflow:
+  #   triggers:
+  #     - schedule:
+  #         cron: "0 15 * * 0"
+  #         filters:
+  #           branches:
+  #             only: pre-production
+  #   jobs:
+  #     - create-beta-package:
+  #         context: org-sbdevhub

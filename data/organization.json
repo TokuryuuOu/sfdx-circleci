@@ -1,0 +1,18 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "Organization"
+            },
+            "Name": "株式会社サンブリッジ OnlineProfile Scratch Org",
+            "Division": "クラウド ソリューション事業部",
+            "Street": "恵比寿南1-5-5 JR恵比寿ビル 11F",
+            "City": "渋谷区",
+            "State": "東京都",
+            "PostalCode": "150-0022",
+            "Country": "JP",
+            "Phone": "03-5488-6010",
+            "Fax": "03-5488-6020"
+        }
+    ]
+}

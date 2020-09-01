@@ -1,0 +1,4 @@
+<!-- OnlineProfile URL生成 -->
+<apex:page standardController="MyProfile__c" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+    <c:UrlGenerator />
+</apex:page>

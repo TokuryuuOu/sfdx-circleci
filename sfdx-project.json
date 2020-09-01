@@ -1,11 +1,9 @@
 {
   "packageDirectories": [
-    {
-      "path": "force-app",
-      "default": true
-    }
+    { "path": "sfdx-source/OnlineProfile", "default": true },
+    { "path": "sfdx-source/unpackaged"}
   ],
-  "namespace": "",
+  "namespace": "olPfSohoTest",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "40.0"
+  "sourceApiVersion": "48.0"
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Parent__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
+    <label>親送信プロフィール</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>OutboundProfile__c.Parent__c</field>
+            <operation>equals</operation>
+            <value/>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>OutboundProfile__c</referenceTo>
+    <relationshipLabel>送信プロフィール</relationshipLabel>
+    <relationshipName>ChildOutboundProfiles</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
