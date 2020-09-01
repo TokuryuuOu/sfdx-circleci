@@ -400,9 +400,9 @@ jobs:
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
               # OKケース数
-              echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
-              + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
-              + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
+              echo $(((grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+              + (grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
+              + (grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
               # NGケース数
               if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
                 OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
@@ -419,9 +419,9 @@ jobs:
               else
                 OPT2_FAIL=$(echo 0)
               fi
-              echo $(($OFT_FAIL + $OPT1_FAIL + $OPT2_FAIL)) > data/fail_num.txt
+              echo $((OFT_FAIL + OPT1_FAIL + OPT2_FAIL)) > data/fail_num.txt
               # 総ケース数
-              echo $(($PASS+$FAIL)) > data/total_num.txt
+              echo $((PASS+FAIL)) > data/total_num.txt
             else
               exit 0
             fi
@@ -439,7 +439,7 @@ jobs:
       - slack/notify:
           channel: ${SLACK_CHANNEL}
           color: '#42e2f4'
-          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat total_num.txt) \n OK：$(cat pass_num.txt) \n NG：$(cat fail_num.txt)"
+          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
           webhook: '${SLACK_WEBHOOK}'
           include_job_number_field: false
 
@@ -447,7 +447,7 @@ jobs:
       - slack/status:
           fail_only: true
           channel: ${SLACK_CHANNEL}
-          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat total_num.txt) \n OK：$(cat pass_num.txt) \n NG：$(cat fail_num.txt)"
+          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
           webhook: '${SLACK_WEBHOOK}'
 
       # CI失敗の通知
