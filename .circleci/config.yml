@@ -400,9 +400,9 @@ jobs:
           command: |
             if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
               # OKケース数
-              echo $(((grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
-              + (grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
-              + (grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
+              echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+              + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
+              + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
               # NGケース数
               if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
                 OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
