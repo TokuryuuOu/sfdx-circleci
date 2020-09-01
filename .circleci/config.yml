@@ -156,15 +156,15 @@ jobs:
       - checkout
       # - sfdx/install:
       #     version: "7.69.0"
-      # - run:
-      #     name: create date files
-      #     command: |
-      #       # 先週の月曜日を取得
-      #       echo $(date "+%s" --date "last monday") > ./monday.txt
-      #       # 最新のcommit日を取得
-      #       echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
-      #       # betaパッケージパージョン名
-      #       echo $(date '+%Y%m%d') > ./version_name.txt
+      - run:
+          name: create date files
+          command: |
+            # 先週の月曜日を取得
+            echo $(date "+%s" --date "last monday") > ./monday.txt
+            # 最新のcommit日を取得
+            echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
+            # betaパッケージパージョン名
+            echo $(date '+%Y%m%d') > ./version_name.txt
       # #　PJT環境認証開始
       # - run: 
       #     name: create PKG org server key
