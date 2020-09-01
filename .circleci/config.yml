@@ -435,9 +435,17 @@ jobs:
           webhook: '${SLACK_WEBHOOK}'
           include_job_number_field: false
 
-      # 初期テストの通知
+      # 初期テストの通知（成功）
+      - slack/notify:
+          channel: ${SLACK_CHANNEL}
+          color: '#42e2f4'
+          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
+          webhook: '${SLACK_WEBHOOK}'
+          include_job_number_field: false
+
+      # 初期テストの通知（失敗）
       - slack/status:
-          fail_only: false
+          fail_only: true
           channel: ${SLACK_CHANNEL}
           failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
           webhook: '${SLACK_WEBHOOK}'
