@@ -401,17 +401,17 @@ jobs:
                    + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
                    + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')))
               # NGケース数
-              if [ -n $(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}') ]; then
+              if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
                 OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
               else
                 OFT_FAIL=$(echo 0)
               fi
-              if [ -n $(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') ]; then
+              if [ -n "$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')" ]; then
                 OPT1_FAIL=$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')
               else
                 OPT1_FAIL=$(echo 0)
               fi
-              if [ -n $(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}') ]; then
+              if [ -n "$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')" ]; then
                 OPT2_FAIL=$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')
               else
                 OPT2_FAIL=$(echo 0)
