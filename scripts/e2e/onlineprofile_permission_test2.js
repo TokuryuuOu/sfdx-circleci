@@ -92,7 +92,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -119,7 +119,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -146,7 +146,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -173,7 +173,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -200,7 +200,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -227,7 +227,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -254,7 +254,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -281,7 +281,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -308,7 +308,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -335,7 +335,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -362,7 +362,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -389,7 +389,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -416,7 +416,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -443,7 +443,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -470,7 +470,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -497,7 +497,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
@@ -524,7 +524,7 @@ describe("SeleniumChromeTest", () => {
     await driver.sleep(10000);
     el = await driver.wait(until.elementLocated(By.xpath('//input[@value="URLを生成する"]')),15000);
     await el.click();
-    await driver.sleep(1000);
+    await driver.sleep(10000);
     try {
       await driver.wait(until.elementLocated(By.xpath('//ul[@role="alert"]/li')),15000);
     } catch (e) {
