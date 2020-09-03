@@ -157,15 +157,16 @@ jobs:
       - sfdx/install:
           version: "7.69.0"
       - run: npm install
-      - run:
-          name: create date files
-          command: |
-            # 先週の月曜日を取得
-            echo $(date "+%s" --date "last monday") > ./monday.txt
-            # 最新のcommit日を取得
-            echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
-            # betaパッケージパージョン名
-            echo $(date '+%Y%m%d') > ./version_name.txt
+      - run: npx mocha scripts/e2e/smartvisca_relatedlist_test.js --timeout 0
+      # - run:
+      #     name: create date files
+      #     command: |
+      #       # 先週の月曜日を取得
+      #       echo $(date "+%s" --date "last monday") > ./monday.txt
+      #       # 最新のcommit日を取得
+      #       echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
+      #       # betaパッケージパージョン名
+      #       echo $(date '+%Y%m%d') > ./version_name.txt
       # #　PJT環境認証開始
       # - run: 
       #     name: create PKG org server key
@@ -395,67 +396,67 @@ jobs:
       #       fi
       #     when: always
 
-      - run:
-          name: edit test result
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # OKケース数
-              echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
-              + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
-              + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
-              # NGケース数
-              if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
-                OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
-              else
-                OFT_FAIL=$(echo 0)
-              fi
-              if [ -n "$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')" ]; then
-                OPT1_FAIL=$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')
-              else
-                OPT1_FAIL=$(echo 0)
-              fi
-              if [ -n "$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')" ]; then
-                OPT2_FAIL=$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')
-              else
-                OPT2_FAIL=$(echo 0)
-              fi
-              echo $((OFT_FAIL + OPT1_FAIL + OPT2_FAIL)) > data/fail_num.txt
-              # 総ケース数
-              echo $(($(cat data/pass_num.txt) + $(cat data/fail_num.txt))) > data/total_num.txt
-            else
-              exit 0
-            fi
-          when: always
+      # - run:
+      #     name: edit test result
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # OKケース数
+      #         echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+      #         + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
+      #         + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
+      #         # NGケース数
+      #         if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
+      #           OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
+      #         else
+      #           OFT_FAIL=$(echo 0)
+      #         fi
+      #         if [ -n "$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')" ]; then
+      #           OPT1_FAIL=$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')
+      #         else
+      #           OPT1_FAIL=$(echo 0)
+      #         fi
+      #         if [ -n "$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')" ]; then
+      #           OPT2_FAIL=$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')
+      #         else
+      #           OPT2_FAIL=$(echo 0)
+      #         fi
+      #         echo $((OFT_FAIL + OPT1_FAIL + OPT2_FAIL)) > data/fail_num.txt
+      #         # 総ケース数
+      #         echo $(($(cat data/pass_num.txt) + $(cat data/fail_num.txt))) > data/total_num.txt
+      #       else
+      #         exit 0
+      #       fi
+      #     when: always
 
-      # 環境情報の通知
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 環境情報の通知
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知（成功）
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 初期テストの通知（成功）
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知（失敗）
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
-          webhook: '${SLACK_WEBHOOK}'
+      # # 初期テストの通知（失敗）
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
+      #     webhook: '${SLACK_WEBHOOK}'
 
-      # CI失敗の通知
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          webhook: '${SLACK_WEBHOOK}'
-          failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
+      # # CI失敗の通知
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
       
 ####################################################################################################
 ## workflows
