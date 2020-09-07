@@ -1,7 +1,7 @@
 {
   "packageDirectories": [
     { "path": "sfdx-source/OnlineProfile", "default": true },
-    { "path": "sfdx-source/unpackaged"}
+    { "path": "sfdx-source/unpackaged/dev-config"}
   ],
   "namespace": "olPfSohoTest",
   "sfdcLoginUrl": "https://login.salesforce.com",
