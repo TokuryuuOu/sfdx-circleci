@@ -157,7 +157,7 @@ jobs:
       - sfdx/install:
           version: "7.69.0"
       - run: |
-          URL=$(echo https://momentum-platform-8170-dev-ed.cs58.my.salesforce.com/?un=1605358063409_test-o6qai3cxsyey@example.com&pw=0E7dA5(V*Y))
+          URL=$(echo "https://momentum-platform-8170-dev-ed.cs58.my.salesforce.com/?un=1605358063409_test-o6qai3cxsyey@example.com&pw=0E7dA5(V*Y")
           urlencode() {
             local length="${#1}"
             for (( i = 0; i < length; i++ )); do
@@ -168,9 +168,9 @@ jobs:
             esac
           done
           }
-          URL=$(urlencode URL)
-          URL=$(echo https://CS58.salesforce.com/secur/frontdoor.jsp?sid=00D0l0000001iMe!AQ0AQIXaycrmDAMFxGqNg04XzRbDh7tCIDi5HvX0GD77McHBXXFsXNBHfIO9FnkwgHu.xAV7lR3Ht0Bz3.6aYpFcCToHFKq.&retURL={URL})
-          echo URL
+          URL=$(urlencode ${URL})
+          URL=$(echo "https://CS58.salesforce.com/secur/frontdoor.jsp?sid=00D0l0000001iMe!AQ0AQIXaycrmDAMFxGqNg04XzRbDh7tCIDi5HvX0GD77McHBXXFsXNBHfIO9FnkwgHu.xAV7lR3Ht0Bz3.6aYpFcCToHFKq.&retURL=${URL}")
+          echo ${URL}
       # - run: npm install
       # - run:
       #     name: create date files
