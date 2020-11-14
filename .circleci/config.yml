@@ -156,306 +156,321 @@ jobs:
       - checkout
       - sfdx/install:
           version: "7.69.0"
-      - run: npm install
-      - run:
-          name: create date files
-          command: |
-            # 先週の月曜日を取得
-            echo $(date "+%s" --date "last monday") > ./monday.txt
-            # 最新のcommit日を取得
-            echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
-            # betaパッケージパージョン名
-            echo $(date '+%Y%m%d') > ./version_name.txt
-      #　PJT環境認証開始
-      - run: 
-          name: create PKG org server key
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              openssl enc -nosalt -aes-256-cbc -d -in assets/server_pkg.key.enc -out assets/server_pkg.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
-            else
-              exit 0
-            fi
-      - run: 
-          name: PKG jwt
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              sfdx force:auth:jwt:grant --clientid ${PKGORG_CONSUMER_KEY} --jwtkeyfile assets/server_pkg.key --username ${PKGORG_SFDC_USERNAME} --setdefaultdevhubusername --setalias PKG-${CIRCLE_PROJECT_REPONAME}-BETA
-            else
-              exit 0
-            fi
-      #　PJT環境認証完了
-      #　DEV環境認証開始
-      - run: 
-          name: create DEV org server key
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
-            else
-              exit 0
-            fi
-      - run: 
-          name: DEV jwt
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              sfdx force:auth:jwt:grant --clientid ${HUB_CONSUMER_KEY} --jwtkeyfile assets/server.key --username ${HUB_SFDC_USER} --setdefaultdevhubusername --setalias DEV-${CIRCLE_PROJECT_REPONAME}-BETA
-            else
-              exit 0
-            fi
-      # DEV環境認証完了
-      - run:
-          name: Convert SFDX source to MDAPI source
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              sfdx force:source:convert -r "$PACKAGE_DIRECTORY" \
-                                        -d "./mdapi-source/circle_build_$CIRCLE_BUILD_NUM" \
-                                        -n "$PACKAGE_NAME" \
-                                        --loglevel error
-            else
-              exit 0
-            fi
-      - run:
-          name: Deploy MDAPI Source to the Packaging Org
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              sfdx force:mdapi:deploy -d "./mdapi-source/circle_build_$CIRCLE_BUILD_NUM" \
-                                      -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
-                                      -w 15 \
-                                      --verbose \
-                                      --loglevel error
-            else
-              exit 0
-            fi
+      - run: |
+          URL=$(echo https://momentum-platform-8170-dev-ed.cs58.my.salesforce.com/?un=1605358063409_test-o6qai3cxsyey@example.com&pw=0E7dA5(V*Y)
+          urlencode() {
+            local length="${#1}"
+            for (( i = 0; i < length; i++ )); do
+              local c="${1:i:1}"
+              case $c in
+                [a-zA-Z0-9.~_-]) printf "$c" ;;
+              *) printf "$c" | xxd -p -c1 | while read x;do printf "%%%s" "$x";done
+            esac
+          done
+          }
+          URL=$(urlencode URL)
+          URL=$(echo https://CS58.salesforce.com/secur/frontdoor.jsp?sid=00D0l0000001iMe!AQ0AQIXaycrmDAMFxGqNg04XzRbDh7tCIDi5HvX0GD77McHBXXFsXNBHfIO9FnkwgHu.xAV7lR3Ht0Bz3.6aYpFcCToHFKq.&retURL={URL})
+          echo URL
+      # - run: npm install
+      # - run:
+      #     name: create date files
+      #     command: |
+      #       # 先週の月曜日を取得
+      #       echo $(date "+%s" --date "last monday") > ./monday.txt
+      #       # 最新のcommit日を取得
+      #       echo $(git log -1 --date=format:"%s" --format="%ad") > ./commit_date.txt
+      #       # betaパッケージパージョン名
+      #       echo $(date '+%Y%m%d') > ./version_name.txt
+      # #　PJT環境認証開始
+      # - run: 
+      #     name: create PKG org server key
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         openssl enc -nosalt -aes-256-cbc -d -in assets/server_pkg.key.enc -out assets/server_pkg.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
+      #       else
+      #         exit 0
+      #       fi
+      # - run: 
+      #     name: PKG jwt
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:auth:jwt:grant --clientid ${PKGORG_CONSUMER_KEY} --jwtkeyfile assets/server_pkg.key --username ${PKGORG_SFDC_USERNAME} --setdefaultdevhubusername --setalias PKG-${CIRCLE_PROJECT_REPONAME}-BETA
+      #       else
+      #         exit 0
+      #       fi
+      # #　PJT環境認証完了
+      # #　DEV環境認証開始
+      # - run: 
+      #     name: create DEV org server key
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${DECRYPTION_KEY} -iv ${DECRYPTION_IV}
+      #       else
+      #         exit 0
+      #       fi
+      # - run: 
+      #     name: DEV jwt
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:auth:jwt:grant --clientid ${HUB_CONSUMER_KEY} --jwtkeyfile assets/server.key --username ${HUB_SFDC_USER} --setdefaultdevhubusername --setalias DEV-${CIRCLE_PROJECT_REPONAME}-BETA
+      #       else
+      #         exit 0
+      #       fi
+      # # DEV環境認証完了
+      # - run:
+      #     name: Convert SFDX source to MDAPI source
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:source:convert -r "$PACKAGE_DIRECTORY" \
+      #                                   -d "./mdapi-source/circle_build_$CIRCLE_BUILD_NUM" \
+      #                                   -n "$PACKAGE_NAME" \
+      #                                   --loglevel error
+      #       else
+      #         exit 0
+      #       fi
+      # - run:
+      #     name: Deploy MDAPI Source to the Packaging Org
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:mdapi:deploy -d "./mdapi-source/circle_build_$CIRCLE_BUILD_NUM" \
+      #                                 -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
+      #                                 -w 15 \
+      #                                 --verbose \
+      #                                 --loglevel error
+      #       else
+      #         exit 0
+      #       fi
 
-      - run:
-          name: Create (upload) a new MANAGED BETA package version
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # betaパッケージパージョン名
-              VERSION_NAME=$(cat version_name.txt)
-              sfdx force:package1:version:create -i $METADATA_PACKAGE_ID \
-                                                -n "$VERSION_NAME" \
-                                                -d "Package version generated by CI process" \
-                                                -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
-                                                -w 15 \
-                                                --loglevel error > ./versionId.txt
-              sfdx force:package1:version:list -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
-                                              -i $METADATA_PACKAGE_ID \
-                                              --loglevel error > ./version_info.txt
-              # betaパッケージバージョンIDを取得
-              VID=$(cat ./versionId.txt)
-              echo 'VID1 : ' ${VID}
-              VID=`echo ${VID#*[}`
-              echo 'VID2 : ' ${VID}
-              VID=`echo ${VID%]*}`
-              echo 'VID3 : ' ${VID}
-              echo 'export VERSIONID_ENV=${VID}' >> $BASH_ENV
-              source $BASH_ENV
-              grep ${VERSIONID_ENV} ./version_info.txt > pkg_info.txt
-              echo 'QA scratch環境の作成 '
-              sfdx force:org:create -f config/project-scratch-def.json orgName=${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -a ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -n -s -d 30 --wait 10
-              sfdx force:org:list --all
-              sleep 120;sfdx force:package:install --package ${VERSIONID_ENV} -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -s AllUsers --publishwait 15 --wait 15
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: Create (upload) a new MANAGED BETA package version
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # betaパッケージパージョン名
+      #         VERSION_NAME=$(cat version_name.txt)
+      #         sfdx force:package1:version:create -i $METADATA_PACKAGE_ID \
+      #                                           -n "$VERSION_NAME" \
+      #                                           -d "Package version generated by CI process" \
+      #                                           -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
+      #                                           -w 15 \
+      #                                           --loglevel error > ./versionId.txt
+      #         sfdx force:package1:version:list -u PKG-${CIRCLE_PROJECT_REPONAME}-BETA \
+      #                                         -i $METADATA_PACKAGE_ID \
+      #                                         --loglevel error > ./version_info.txt
+      #         # betaパッケージバージョンIDを取得
+      #         VID=$(cat ./versionId.txt)
+      #         echo 'VID1 : ' ${VID}
+      #         VID=`echo ${VID#*[}`
+      #         echo 'VID2 : ' ${VID}
+      #         VID=`echo ${VID%]*}`
+      #         echo 'VID3 : ' ${VID}
+      #         echo 'export VERSIONID_ENV=${VID}' >> $BASH_ENV
+      #         source $BASH_ENV
+      #         grep ${VERSIONID_ENV} ./version_info.txt > pkg_info.txt
+      #         echo 'QA scratch環境の作成 '
+      #         sfdx force:org:create -f config/project-scratch-def.json orgName=${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -a ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -n -s -d 30 --wait 10
+      #         sfdx force:org:list --all
+      #         sleep 120;sfdx force:package:install --package ${VERSIONID_ENV} -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} -s AllUsers --publishwait 15 --wait 15
+      #       else
+      #         exit 0
+      #       fi
 
-      - run:
-          name: deploy community src
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              sfdx force:source:deploy -p "sfdx-source/unpackaged/dev-config" \
-                                      -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
-                                      -w 15 \
-                                      --verbose \
-                                      --loglevel error
-              sfdx force:source:deploy -p "sfdx-source/unpackaged/qa-config/main/default/objects, \
-                                          sfdx-source/unpackaged/qa-config/main/default/networks, \
-                                          sfdx-source/unpackaged/qa-config/main/default/sharingRules, \
-                                          sfdx-source/unpackaged/qa-config/main/default/aura, \
-                                          sfdx-source/unpackaged/qa-config/main/default/pages, \
-                                          sfdx-source/unpackaged/qa-config/main/default/siteDotComSites, \
-                                          sfdx-source/unpackaged/qa-config/main/default/classes, \
-                                          sfdx-source/unpackaged/qa-config/main/default/sites, \
-                                          sfdx-source/unpackaged/qa-config/main/default/navigationMenus, \
-                                          sfdx-source/unpackaged/qa-config/main/default/networkBranding" \
-                                      -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
-                                      -w 15  \
-                                      --verbose  \
-                                      --loglevel error
-              sfdx force:source:deploy -p "sfdx-source/unpackaged/qa-config/main/default/profiles, \
-                                          sfdx-source/unpackaged/qa-config/main/default/profilePasswordPolicies, \
-                                          sfdx-source/unpackaged/qa-config/main/default/profileSessionSettings, \
-                                          sfdx-source/unpackaged/qa-config/main/default/permissionsets" \
-                                      -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
-                                      -w 15 \
-                                      --verbose \
-                                      --loglevel error
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: deploy community src
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         sfdx force:source:deploy -p "sfdx-source/unpackaged/dev-config" \
+      #                                 -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
+      #                                 -w 15 \
+      #                                 --verbose \
+      #                                 --loglevel error
+      #         sfdx force:source:deploy -p "sfdx-source/unpackaged/qa-config/main/default/objects, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/networks, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/sharingRules, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/aura, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/pages, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/siteDotComSites, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/classes, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/sites, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/navigationMenus, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/networkBranding" \
+      #                                 -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
+      #                                 -w 15  \
+      #                                 --verbose  \
+      #                                 --loglevel error
+      #         sfdx force:source:deploy -p "sfdx-source/unpackaged/qa-config/main/default/profiles, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/profilePasswordPolicies, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/profileSessionSettings, \
+      #                                     sfdx-source/unpackaged/qa-config/main/default/permissionsets" \
+      #                                 -u ${CIRCLE_WORKFLOW_ID}-${CIRCLE_BRANCH} \
+      #                                 -w 15 \
+      #                                 --verbose \
+      #                                 --loglevel error
+      #       else
+      #         exit 0
+      #       fi
 
-      - run:
-          name: push beta tag and create admin user
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # betaパッケージパージョン名
-              VERSION_NAME=$(cat version_name.txt)
-              # betaタグを作成　例：beta_1.0.0_20200819
-              PKG_INFO=$(cat pkg_info.txt)
-              if [[ $PKG_INFO =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
-                PKG_VERSION=${BASH_REMATCH[0]}
-              fi
-              TAG_HEAD=$(echo beta_)
-              UB=$(echo _)
-              BETA_TAG=$(echo $TAG_HEAD$PKG_VERSION$UB${VERSION_NAME})
-              echo '{"betatag":"'$BETA_TAG'"}' > data/beta_tag.json
-              git tag $BETA_TAG
-              git push origin $BETA_TAG
-              # テストユーザーの作成
-              sfdx force:user:create --setalias use01-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user01-def.json
-              sfdx force:user:display --targetusername use01-${CIRCLE_WORKFLOW_ID}@package.org
-              sfdx force:user:create --setalias use02-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user02-def.json
-              sfdx force:user:display --targetusername use02-${CIRCLE_WORKFLOW_ID}@package.org
-              sfdx force:user:create --setalias use03-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user03-def.json
-              sfdx force:user:display --targetusername use03-${CIRCLE_WORKFLOW_ID}@package.org
-              # adminユーザーの作成
-              sfdx force:user:create --setalias qa-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile config/project-user-admin-def.json
-              sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org | sed '1,3d' > ./qa_userPassword.txt
-              OLD_PW=$(grep Password ./qa_userPassword.txt|awk '{print $2}')
-              PW_JSON=$(cat data/qa_scratch_pw.json)
-              NEW_PW=$(echo $PW_JSON | jq -r '.newPassword')
-              sed -i -e "s/"$OLD_PW"/"$NEW_PW"/g" ./qa_userPassword.txt
-              cat ./qa_userPassword.txt
-              # qaスクラッチ環境情報を取得（ここはslack通知しない、情報をBASH環境変数に保存のみです）
-              echo 'export QAVERY_IMPORTANT=$(cat ./qa_userPassword.txt)' >> $BASH_ENV
-              echo 'export QAMSG_HEAD=$(echo ベターパッケージ QA scratch環境を作成しました。)' >> $BASH_ENV
-              source $BASH_ENV
-            else
-              echo 'export QAMSG_HEAD=$(echo 今週中に、当ブランチで新しいコミットが存在しないため、ベターパッケージを作成しません。)' >> $BASH_ENV
-              source $BASH_ENV
-            fi
+      # - run:
+      #     name: push beta tag and create admin user
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # betaパッケージパージョン名
+      #         VERSION_NAME=$(cat version_name.txt)
+      #         # betaタグを作成　例：beta_1.0.0_20200819
+      #         PKG_INFO=$(cat pkg_info.txt)
+      #         if [[ $PKG_INFO =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+      #           PKG_VERSION=${BASH_REMATCH[0]}
+      #         fi
+      #         TAG_HEAD=$(echo beta_)
+      #         UB=$(echo _)
+      #         BETA_TAG=$(echo $TAG_HEAD$PKG_VERSION$UB${VERSION_NAME})
+      #         echo '{"betatag":"'$BETA_TAG'"}' > data/beta_tag.json
+      #         git tag $BETA_TAG
+      #         git push origin $BETA_TAG
+      #         # テストユーザーの作成
+      #         sfdx force:user:create --setalias use01-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user01-def.json
+      #         sfdx force:user:display --targetusername use01-${CIRCLE_WORKFLOW_ID}@package.org
+      #         sfdx force:user:create --setalias use02-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user02-def.json
+      #         sfdx force:user:display --targetusername use02-${CIRCLE_WORKFLOW_ID}@package.org
+      #         sfdx force:user:create --setalias use03-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile data/user03-def.json
+      #         sfdx force:user:display --targetusername use03-${CIRCLE_WORKFLOW_ID}@package.org
+      #         # adminユーザーの作成
+      #         sfdx force:user:create --setalias qa-${CIRCLE_WORKFLOW_ID}@package.org --definitionfile config/project-user-admin-def.json
+      #         sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org | sed '1,3d' > ./qa_userPassword.txt
+      #         OLD_PW=$(grep Password ./qa_userPassword.txt|awk '{print $2}')
+      #         PW_JSON=$(cat data/qa_scratch_pw.json)
+      #         NEW_PW=$(echo $PW_JSON | jq -r '.newPassword')
+      #         sed -i -e "s/"$OLD_PW"/"$NEW_PW"/g" ./qa_userPassword.txt
+      #         cat ./qa_userPassword.txt
+      #         # qaスクラッチ環境情報を取得（ここはslack通知しない、情報をBASH環境変数に保存のみです）
+      #         echo 'export QAVERY_IMPORTANT=$(cat ./qa_userPassword.txt)' >> $BASH_ENV
+      #         echo 'export QAMSG_HEAD=$(echo ベターパッケージ QA scratch環境を作成しました。)' >> $BASH_ENV
+      #         source $BASH_ENV
+      #       else
+      #         echo 'export QAMSG_HEAD=$(echo 今週中に、当ブランチで新しいコミットが存在しないため、ベターパッケージを作成しません。)' >> $BASH_ENV
+      #         source $BASH_ENV
+      #       fi
 
-      - run:
-          name: create test data
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # カスタム設定のデーダ作成
-              sfdx force:apex:execute -u qa-${CIRCLE_WORKFLOW_ID}@package.org -f scripts/apex/insertCustomSetting.apex
-              # MyProfileのデーダ作成
-              sfdx force:data:tree:import -f data/olPfSohoTest__MyProfile__c.json -u qa-${CIRCLE_WORKFLOW_ID}@package.org
-              # MyProfileの所有者指定
-              sfdx force:apex:execute -u qa-${CIRCLE_WORKFLOW_ID}@package.org -f scripts/apex/updateMyprofileOwner.apex
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: create test data
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # カスタム設定のデーダ作成
+      #         sfdx force:apex:execute -u qa-${CIRCLE_WORKFLOW_ID}@package.org -f scripts/apex/insertCustomSetting.apex
+      #         # MyProfileのデーダ作成
+      #         sfdx force:data:tree:import -f data/olPfSohoTest__MyProfile__c.json -u qa-${CIRCLE_WORKFLOW_ID}@package.org
+      #         # MyProfileの所有者指定
+      #         sfdx force:apex:execute -u qa-${CIRCLE_WORKFLOW_ID}@package.org -f scripts/apex/updateMyprofileOwner.apex
+      #       else
+      #         exit 0
+      #       fi
 
-      - run:
-          name: create info files and run e2e script
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # e2e側で、MyProfile詳細画面URLが必要ため、URL作成用IDを取得
-              sfdx force:data:soql:query -q "SELECT Id FROM olPfSohoTest__MyProfile__c" -u qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/mp.json
-              cat data/mp.json
-              # e2e用環境ログイン情報を取得
-              sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/qa_scratch_info.json
-              cat data/qa_scratch_info.json
-              # e2e実行
-              npx mocha scripts/e2e/qa_community.js --timeout 0
-            else
-              exit 0
-            fi
+      # - run:
+      #     name: create info files and run e2e script
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # e2e側で、MyProfile詳細画面URLが必要ため、URL作成用IDを取得
+      #         sfdx force:data:soql:query -q "SELECT Id FROM olPfSohoTest__MyProfile__c" -u qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/mp.json
+      #         cat data/mp.json
+      #         # e2e用環境ログイン情報を取得
+      #         sfdx force:user:display --targetusername qa-${CIRCLE_WORKFLOW_ID}@package.org --json > data/qa_scratch_info.json
+      #         cat data/qa_scratch_info.json
+      #         # e2e実行
+      #         npx mocha scripts/e2e/qa_community.js --timeout 0
+      #       else
+      #         exit 0
+      #       fi
       
-      - run:
-          name: run onlineprofile function test
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0 | tee data/onlineprofile_function_test_log.txt
-            else
-              exit 0
-            fi
-          when: always
+      # - run:
+      #     name: run onlineprofile function test
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         npx mocha scripts/e2e/onlineprofile_function_test.js --timeout 0 | tee data/onlineprofile_function_test_log.txt
+      #       else
+      #         exit 0
+      #       fi
+      #     when: always
 
-      - run:
-          name: run onlineprofile permission test1
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0 | tee data/onlineprofile_permission_test_log1.txt
-            else
-              exit 0
-            fi
-          when: always
+      # - run:
+      #     name: run onlineprofile permission test1
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         npx mocha scripts/e2e/onlineprofile_permission_test1.js --timeout 0 | tee data/onlineprofile_permission_test_log1.txt
+      #       else
+      #         exit 0
+      #       fi
+      #     when: always
 
-      - run:
-          name: run onlineprofile permission test2
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              npx mocha scripts/e2e/onlineprofile_permission_test2.js --timeout 0 | tee  data/onlineprofile_permission_test_log2.txt
-            else
-              exit 0
-            fi
-          when: always
+      # - run:
+      #     name: run onlineprofile permission test2
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         npx mocha scripts/e2e/onlineprofile_permission_test2.js --timeout 0 | tee  data/onlineprofile_permission_test_log2.txt
+      #       else
+      #         exit 0
+      #       fi
+      #     when: always
 
-      - run:
-          name: edit test result
-          command: |
-            if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
-              # OKケース数
-              echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
-              + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
-              + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
-              # NGケース数
-              if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
-                OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
-              else
-                OFT_FAIL=$(echo 0)
-              fi
-              if [ -n "$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')" ]; then
-                OPT1_FAIL=$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')
-              else
-                OPT1_FAIL=$(echo 0)
-              fi
-              if [ -n "$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')" ]; then
-                OPT2_FAIL=$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')
-              else
-                OPT2_FAIL=$(echo 0)
-              fi
-              echo $((OFT_FAIL + OPT1_FAIL + OPT2_FAIL)) > data/fail_num.txt
-              # 総ケース数
-              echo $(($(cat data/pass_num.txt) + $(cat data/fail_num.txt))) > data/total_num.txt
-            else
-              exit 0
-            fi
-          when: always
+      # - run:
+      #     name: edit test result
+      #     command: |
+      #       if [ $(cat monday.txt) -le $(cat commit_date.txt) ]; then
+      #         # OKケース数
+      #         echo $(($(grep passing data/onlineprofile_function_test_log.txt | awk '{print $1}') \
+      #         + $(grep passing data/onlineprofile_permission_test_log1.txt | awk '{print $1}') \
+      #         + $(grep passing data/onlineprofile_permission_test_log2.txt | awk '{print $1}'))) > data/pass_num.txt
+      #         # NGケース数
+      #         if [ -n "$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')" ]; then
+      #           OFT_FAIL=$(grep failing data/onlineprofile_function_test_log.txt | awk '{print $1}')
+      #         else
+      #           OFT_FAIL=$(echo 0)
+      #         fi
+      #         if [ -n "$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')" ]; then
+      #           OPT1_FAIL=$(grep failing data/onlineprofile_permission_test_log1.txt | awk '{print $1}')
+      #         else
+      #           OPT1_FAIL=$(echo 0)
+      #         fi
+      #         if [ -n "$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')" ]; then
+      #           OPT2_FAIL=$(grep failing data/onlineprofile_permission_test_log2.txt | awk '{print $1}')
+      #         else
+      #           OPT2_FAIL=$(echo 0)
+      #         fi
+      #         echo $((OFT_FAIL + OPT1_FAIL + OPT2_FAIL)) > data/fail_num.txt
+      #         # 総ケース数
+      #         echo $(($(cat data/pass_num.txt) + $(cat data/fail_num.txt))) > data/total_num.txt
+      #       else
+      #         exit 0
+      #       fi
+      #     when: always
 
-      # 環境情報の通知
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 環境情報の通知
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "${QAMSG_HEAD} \n ブランチ：${CIRCLE_BRANCH} \n ${QAVERY_IMPORTANT}"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知（成功）
-      - slack/notify:
-          channel: ${SLACK_CHANNEL}
-          color: '#42e2f4'
-          message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
-          webhook: '${SLACK_WEBHOOK}'
-          include_job_number_field: false
+      # # 初期テストの通知（成功）
+      # - slack/notify:
+      #     channel: ${SLACK_CHANNEL}
+      #     color: '#42e2f4'
+      #     message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     include_job_number_field: false
 
-      # 初期テストの通知（失敗）
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
-          webhook: '${SLACK_WEBHOOK}'
+      # # 初期テストの通知（失敗）
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     failure_message: "初期テスト結果 \n ブランチ：${CIRCLE_BRANCH} \n ケース総数：$(cat data/total_num.txt) \n OK：$(cat data/pass_num.txt) \n NG：$(cat data/fail_num.txt)"
+      #     webhook: '${SLACK_WEBHOOK}'
 
-      # CI失敗の通知
-      - slack/status:
-          fail_only: true
-          channel: ${SLACK_CHANNEL}
-          webhook: '${SLACK_WEBHOOK}'
-          failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
+      # # CI失敗の通知
+      # - slack/status:
+      #     fail_only: true
+      #     channel: ${SLACK_CHANNEL}
+      #     webhook: '${SLACK_WEBHOOK}'
+      #     failure_message: "名前：$CIRCLE_USERNAME \n ブランチ：${CIRCLE_BRANCH} \n CIRCLE JOB が失敗しました。確認してください。"      
       
 ####################################################################################################
 ## workflows
