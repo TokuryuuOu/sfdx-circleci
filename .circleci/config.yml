@@ -161,12 +161,13 @@ jobs:
           urlencode() {
             local length="${#1}"
             for (( i = 0; i < length; i++ )); do
-              local c="${1:i:1}"
-              case $c in
-                [a-zA-Z0-9.~_-]) printf "$c" ;;
-              *) printf "$c" | xxd -p -c1 | while read x;do printf "%%%s" "$x";done
-            esac
-          done
+                local c="${1:i:1}"
+                case $c in
+                    [a-zA-Z0-9.~_-]) printf "$c" ;;
+                    *) printf '%s' "$c" | xxd -p -c1 |
+                           while read c; do printf '%%%s' "$c"; done ;;
+                esac
+            done
           }
           ENCODE_URL_UNPW=$(urlencode ${URL_UNPW})
           URL_TOKEN='https://CS58.salesforce.com/secur/frontdoor.jsp?sid=00D0l0000001iMe!AQ0AQIXaycrmDAMFxGqNg04XzRbDh7tCIDi5HvX0GD77McHBXXFsXNBHfIO9FnkwgHu.xAV7lR3Ht0Bz3.6aYpFcCToHFKq.&retURL='
