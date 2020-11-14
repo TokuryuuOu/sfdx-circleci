@@ -150,8 +150,8 @@ jobs:
   create-beta-package:
     # 毎週月曜の零時に起動する
     executor: sfdx/default
-    docker:
-      - image: circleci/node:current-browsers
+    # docker:
+    #   - image: circleci/node:current-browsers
     steps:
       - checkout
       - sfdx/install:
