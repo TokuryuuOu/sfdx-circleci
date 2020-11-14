@@ -150,14 +150,11 @@ jobs:
   create-beta-package:
     # 毎週月曜の零時に起動する
     executor: sfdx/default
-    # docker:
-    #   - image: circleci/node:current-browsers
-    docker:
-      - image: zimy/openssl-xxd
     steps:
       - checkout
       - sfdx/install:
           version: "7.69.0"
+      - run: npm i xxd
       - run: |
           URL_UNPW='https://momentum-platform-8170-dev-ed.cs58.my.salesforce.com/?un=1605358063409_test-o6qai3cxsyey@example.com&pw=0E7dA5(V*Y'
           urlencode() {
