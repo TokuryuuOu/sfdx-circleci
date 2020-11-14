@@ -152,6 +152,8 @@ jobs:
     executor: sfdx/default
     # docker:
     #   - image: circleci/node:current-browsers
+    docker:
+      - image: zimy/openssl-xxd
     steps:
       - checkout
       - sfdx/install:
