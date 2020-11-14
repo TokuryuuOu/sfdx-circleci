@@ -157,7 +157,7 @@ jobs:
       - sfdx/install:
           version: "7.69.0"
       - run: |
-          URL=$(echo https://momentum-platform-8170-dev-ed.cs58.my.salesforce.com/?un=1605358063409_test-o6qai3cxsyey@example.com&pw=0E7dA5(V*Y)
+          URL=$(echo https://momentum-platform-8170-dev-ed.cs58.my.salesforce.com/?un=1605358063409_test-o6qai3cxsyey@example.com&pw=0E7dA5(V*Y))
           urlencode() {
             local length="${#1}"
             for (( i = 0; i < length; i++ )); do
